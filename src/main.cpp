@@ -44,7 +44,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   initSL(); //scissorlift init
 
-  int currentStateMachine = TAPE_FOLLOW_STATE;
+  currentStateMachine = TAPE_FOLLOW_STATE;
   pwm_start(ELASTIFORWARD,75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
 }
 
