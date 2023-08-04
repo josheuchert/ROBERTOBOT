@@ -50,7 +50,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   initSL(); //scissorlift init
 
-  int currentStateMachine = TAPE_FOLLOW_STATE;
+  currentStateMachine = TAPE_FOLLOW_STATE;
   pwm_start(ELASTIFORWARD,75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
 }
 
@@ -89,13 +89,13 @@ void loop() {
       int steeringVal = getSteeringVal(currentState, derivState);
       startDriveMotors(steeringVal);
       previousState = currentState;
-      int newRampState = getGryoFromSerial();
+      int newRampState = getGryoFromSerial(); //might want to make it check this less than every loop, could be slow
       rampState += newRampState;
       if(newRampState == 1 && rampState == 1){
         lapNum +=1;
          for(int i = 0; i<sizeof(ZIPLINE_LAPS); i++){
-              if(ZIPLINE_LAPS[1]==lapNum){
-                currentStateMachine = EXTENDING_SL;
+              if(ZIPLINE_LAPS[i]==lapNum){
+                currentStateMachine = MOUNT_SL;
               }
             }
       }
@@ -104,6 +104,21 @@ void loop() {
       break;
     
     case MOUNT_SL: {
+      if(rampState == 1) {
+        if(millis()-tLastDeriv > DERIV_OVER_MS){
+        tLastDeriv = millis();
+        derivState = previousState;
+      }
+      int currentState = getErrorState(previousState);
+      int steeringVal = getSteeringVal(currentState, derivState);
+      startDriveMotors(steeringVal);
+      previousState = currentState;
+        int newRampState = getGryoFromSerial(); //might want to make it check this less than every loop, could be slow
+      rampState += newRampState;
+      } else{
+        stopDriveMotors();
+        stopElasti();
+      }
       if(extending == 0 && encoderPosition <= MOUNTPOSITION) {
         extend();
       }
