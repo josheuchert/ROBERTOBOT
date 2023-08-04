@@ -143,3 +143,15 @@ int getSteeringVal(int currentErrorState, int previousState) {
   }
 }
 
+int getGryoFromSerial(){
+  if(Serial3.available()){ //checks serial port to see if there is a message from gyro
+        int val = Serial3.readString().toInt();
+        if(val == 1){ //1 over serial = negative transition (flat to down or up to flat)
+          return -1;
+        } else if (val ==2){ //2 over serial = positive transition (flat to up or )
+          return 1;
+        }
+  }
+        return 0;
+}
+

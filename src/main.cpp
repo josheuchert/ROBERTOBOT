@@ -5,6 +5,8 @@
 #include "diffsteering.h" //differential steering funcitons
 #include "objectcollection.h" //object collection funcutions
 #include "scissorLift.h"
+using namespace std;
+
 #define DERIV_OVER_MS 100
 
 #define CALIBRATE_STATE 0
@@ -14,6 +16,8 @@
 #define TAPE_FOLLOW_STATE 2
 #define MOUNT_SL 5
 #define ON_ZIPLINE 6
+#define EXTENDING_SL 7
+const int ZIPLINE_LAPS[1] = {1};
 
 // Variable Declaration
 HardwareSerial Serial3(USART3);
@@ -26,10 +30,12 @@ int loopCount = 0;
 unsigned long tLastLPSCalc = millis();
 unsigned long tBombDetected = millis();
 bool bombDetected = false;
+int rampState = 0; //-1 for downhill, 0 for flat, 1 for up
+int lapNum = 0;
 
 int prev_time = 0;
 bool state = 0;
-long distance;
+long distanceCM;
 int currentStateMachine;
 
 
@@ -83,10 +89,19 @@ void loop() {
       int steeringVal = getSteeringVal(currentState, derivState);
       startDriveMotors(steeringVal);
       previousState = currentState;
+      int newRampState = getGryoFromSerial();
+      rampState += newRampState;
+      if(newRampState == 1 && rampState == 1){
+        lapNum +=1;
+         for(int i = 0; i<sizeof(ZIPLINE_LAPS); i++){
+              if(ZIPLINE_LAPS[1]==lapNum){
+                currentStateMachine = EXTENDING_SL;
+              }
+            }
+      }
       //if at bottom of ramp change state to Mount SL
     }
       break;
-    
     
     case MOUNT_SL: {
       if(extending == 0 && encoderPosition <= MOUNTPOSITION) {
@@ -102,23 +117,23 @@ void loop() {
         mountingDrivingRoutine();
        
         //ignore
-        distance = getDistanceFromFloor();
-        if (distance >= SONAR_CLIFF_HEIGHT){
+        distanceCM = getDistanceFromFloor();
+        if (distanceCM >= SONAR_CLIFF_HEIGHT){
           extend();
           Serial3.println("Setting to on zipline state");
           currentStateMachine = ON_ZIPLINE;
           pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
           pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
         }
-        // if (distance >= SONAR_CLIFF_HEIGHT) {
+        // if (distanceCM >= SONAR_CLIFF_HEIGHT) {
         //   extend();
         //   currentState = ON_ZIPLINE;
         //   pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
         //   pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
       }
       
-      // distance = getDistanceFromFloor();
-      // if (distance >= SONAR_CLIFF_HEIGHT){
+      // distanceCM = getDistanceFromFloor();
+      // if (distanceCM >= SONAR_CLIFF_HEIGHT){
       //   extend();
       //   Serial3.println("Setting to on zipline state");
       //   currentState = ON_ZIPLINE;
@@ -138,15 +153,15 @@ void loop() {
       // pwm_start(DRIVE_RF, 75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
       // pwm_start(DRIVE_LF, 75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
       
-      // distance = getDistanceFromFloor();
-      // if (distance > SONAR_CLIFF_HEIGHT) {
+      // distanceCM = getDistanceFromFloor();
+      // if (distanceCM > SONAR_CLIFF_HEIGHT) {
       //   extend();
         //state is on zipline
 
     
     case ON_ZIPLINE:{
-      distance = getDistanceFromFloor();
-      if (distance <= SONAR_GROUND) {
+      distanceCM = getDistanceFromFloor();
+      if (distanceCM <= SONAR_GROUND) {
         delay(2000);
         stopScissor();
         dismountDrivingRoutine();

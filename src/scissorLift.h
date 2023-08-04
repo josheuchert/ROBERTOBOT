@@ -47,7 +47,7 @@ void readyMount();
 //resets SL to rest position and calibrates position tracking
 void calibrateSL();
 
-//Returns distance of ultrasonic sensor from floor
+//Returns distanceCM of ultrasonic sensor from floor
 long getDistanceFromFloor();
 
 //Stops scissor lift
