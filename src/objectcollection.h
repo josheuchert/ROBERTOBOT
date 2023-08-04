@@ -19,4 +19,7 @@ void bombRoutine();
 /*Normal state for object collection*/
 void normalObjRoutine();
 
+/*Stops Elasti grab motor*/
+void stopElasti();
+
 #endif

@@ -28,7 +28,8 @@ int getSteeringVal(int currentErrorState, int previousErrorState);
 */
 void startDriveMotors(int steeringVal);
 
-
+/*Stops motors*/
+void stopDriveMotors();
 /*reads serial if available and returns the transition value
 returns -1 for a downwards transition, 1 for an upwards transition or 0 for no transition*/
 int getGryoFromSerial();
