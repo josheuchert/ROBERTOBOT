@@ -30,8 +30,7 @@ int loopCount = 0;
 unsigned long tLastLPSCalc = millis();
 unsigned long tBombDetected = millis();
 bool bombDetected = false;
-int rampState = 0; //-1 for downhill, 0 for flat, 1 for up
-int lapNum = 0;
+int lastRampState = 0; //-1 for downhill, 0 for flat, 1 for up
 
 int prev_time = 0;
 bool state = 0;
@@ -50,8 +49,8 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   initSL(); //scissorlift init
 
-  currentStateMachine = TAPE_FOLLOW_STATE;
-  pwm_start(ELASTIFORWARD,75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
+  currentStateMachine = CALIBRATE_STATE;
+  //pwm_start(ELASTIFORWARD,75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
 }
 
 
@@ -64,7 +63,7 @@ void loop() {
       calibrateSL();
       Serial3.println("Done Calibrating!");
       
-      currentStateMachine = MOUNT_SL;
+      currentStateMachine = POLL_GO_STATE;
       Serial3.println("ENTER MOUNT SL STATE");
       delay(1000);}
       break;
@@ -89,12 +88,9 @@ void loop() {
       int steeringVal = getSteeringVal(currentState, derivState);
       startDriveMotors(steeringVal);
       previousState = currentState;
-      int newRampState = getGryoFromSerial(); //might want to make it check this less than every loop, could be slow
-      rampState += newRampState;
-      if(newRampState == 1 && rampState == 1){
-        lapNum +=1;
-         for(int i = 0; i<sizeof(ZIPLINE_LAPS); i++){
-              if(ZIPLINE_LAPS[i]==lapNum){
+      if(lastRampState == 0 && rampState == 1){
+        for(int i = 0; i<sizeof(ZIPLINE_LAPS); i++){
+              if(ZIPLINE_LAPS[i]==lapCount){
                 currentStateMachine = MOUNT_SL;
               }
             }
