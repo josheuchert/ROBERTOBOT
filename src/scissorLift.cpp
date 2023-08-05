@@ -6,6 +6,8 @@ int encoderPosition;
 bool go;
 bool extending;
 volatile bool calibrateStatus;
+int lapCount = 0;
+int rampSate = 0;
 
 
 void initSL() {
@@ -21,7 +23,7 @@ void initSL() {
     attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_RET), ret_limit_handler, RISING);
     attachInterrupt(digitalPinToInterrupt(SL_ENCODER), encoder_handler, RISING);
     attachInterrupt(digitalPinToInterrupt(GO_PIN), go_handler, RISING);
-
+    attachInterrupt(digitalPinToInterrupt(UP_RAMP), incrementLap, RISING);
     go = false;
 
 }
@@ -147,6 +149,11 @@ void dismountDrivingRoutine(){
     while (calibrateStatus == 0){
       delay(200);
     }
+}
+
+void incrementLap(){
+    lapCount+=1;
+    rampState+=1;
 }
 
 

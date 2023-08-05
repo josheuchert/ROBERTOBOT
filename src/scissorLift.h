@@ -15,11 +15,15 @@
 #define DRIVE_PWM_FOR_MOUNTING 2000
 #define SONAR_CLIFF_HEIGHT 7
 #define SONAR_GROUND 3
+#define DOWN_RAMP PB12
+#define UP_RAMP PB13
 
  //0 when scissorlift is fully retracted
 extern int encoderPosition;
 extern bool go;
 extern bool extending;
+extern int lapCount;
+extern int rampState;
 //Initialize switches and encoder pins
 void initSL();
 
