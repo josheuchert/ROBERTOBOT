@@ -23,7 +23,7 @@ bool atTopOfRamp = false;
 
 // Variable Declaration
 HardwareSerial Serial3(USART3);
-MovingAverage movingAverage(100); //exponential moving average using approx 100 terms
+MovingAverage movingAverage(0.02); //exponential moving average using approx 100 terms
 #define AVERAGE_OVER 1000
 
 volatile int previousState = 0;
