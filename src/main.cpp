@@ -18,6 +18,7 @@ using namespace std;
 #define ON_ZIPLINE 6
 #define EXTENDING_SL 7
 const int ZIPLINE_LAPS[1] = {1};
+bool atTopOfRamp = false;
 
 // Variable Declaration
 HardwareSerial Serial3(USART3);
@@ -88,7 +89,8 @@ void loop() {
       int steeringVal = getSteeringVal(currentState, derivState);
       startDriveMotors(steeringVal);
       previousState = currentState;
-      if(lastRampState == 0 && rampState == 1){
+      if(rampState == 1 & lastRampState == 0){
+        lastRampState++;
         for(int i = 0; i<sizeof(ZIPLINE_LAPS); i++){
               if(ZIPLINE_LAPS[i]==lapCount){
                 currentStateMachine = MOUNT_SL;
@@ -100,7 +102,9 @@ void loop() {
       break;
     
     case MOUNT_SL: {
-      if(rampState == 1) {
+      int prevRampState = rampState;
+      if(rampState == 1 &&!topOfRamp) {
+        if(!((analogRead(LEFTSENSE) > 500 && analogRead(MIDLEFTSENSE) > 500 && analogRead(MIDRIGHTSENSE) > 500 && analogRead(RIGHTSENSE) > 500))){
         if(millis()-tLastDeriv > DERIV_OVER_MS){
         tLastDeriv = millis();
         derivState = previousState;
@@ -109,10 +113,15 @@ void loop() {
       int steeringVal = getSteeringVal(currentState, derivState);
       startDriveMotors(steeringVal);
       previousState = currentState;
-        int newRampState = getGryoFromSerial(); //might want to make it check this less than every loop, could be slow
-      rampState += newRampState;
-      } else{
-        stopDriveMotors();
+        } else{
+          topOfRamp = true;
+        }
+      
+        //int newRampState = getGryoFromSerial(); //might want to make it check this less than every loop, could be slow
+      //rampState += newRampState;
+      } else if (rampState == 0 && prevRampState ==1 || topOfRamp == true){
+        prevRampState = 0;
+        //stopDriveMotors();
         stopElasti();
       }
       if(extending == 0 && encoderPosition <= MOUNTPOSITION) {
@@ -121,11 +130,13 @@ void loop() {
       else if(encoderPosition >= MOUNTPOSITION) {
         // maybe add an extending == 1 ^^
         stopScissor();
-        Serial3.println("In Mount Position!");
-        delay(1000);
+        //Serial3.println("In Mount Position!");
+        //delay(1000);
 
         //move down to if at tape marker --> exclude check if extending to test before that
-        mountingDrivingRoutine();
+        if(rampState == 0 || topOfRamp == true){
+          mountingDrivingRoutine();
+        }
        
         //ignore
         distanceCM = getDistanceFromFloor();
@@ -133,8 +144,11 @@ void loop() {
           extend();
           Serial3.println("Setting to on zipline state");
           currentStateMachine = ON_ZIPLINE;
+          topOfRamp = false;
           pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
           pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+          delay(500);
+          stopScissor();
         }
         // if (distanceCM >= SONAR_CLIFF_HEIGHT) {
         //   extend();
@@ -178,7 +192,7 @@ void loop() {
         dismountDrivingRoutine();
         Serial3.println("Entering Tape Follow State (DONE)!");
         
-        currentStateMachine = TAPE_FOLLOW_STATE;
+       // currentStateMachine = TAPE_FOLLOW_STATE;
       }
       
     }

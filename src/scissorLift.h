@@ -11,12 +11,13 @@
 #define GO_PIN PB14
 #define SL_EXTEND_SPEED 3000
 #define SL_RETRACT_SPEED 3000
-#define MOUNTPOSITION 2400
+#define MOUNTPOSITION 2075
 #define DRIVE_PWM_FOR_MOUNTING 2000
 #define SONAR_CLIFF_HEIGHT 7
 #define SONAR_GROUND 3
-#define DOWN_RAMP PB12
-#define UP_RAMP PB13
+#define DOWN_RAMP PC14
+#define UP_RAMP PC13
+#define INTERRUPT_COOLDOWN_MS 500
 
  //0 when scissorlift is fully retracted
 extern int encoderPosition;
@@ -24,6 +25,7 @@ extern bool go;
 extern bool extending;
 extern int lapCount;
 extern int rampState;
+
 //Initialize switches and encoder pins
 void initSL();
 
@@ -63,6 +65,9 @@ void mountingDrivingRoutine();
 //Driving off the zipline and retracting SL
 void dismountDrivingRoutine();
 
+void incrementLap();
+
+void downRamp();
 
 
 

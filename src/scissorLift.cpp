@@ -2,12 +2,16 @@
 #include <Wire.h>
 #include <scissorLift.h>
 #include <diffsteering.h>
+
+
 int encoderPosition;
 bool go;
 bool extending;
 volatile bool calibrateStatus;
 int lapCount = 0;
-int rampSate = 0;
+int rampState = 0;
+int tLastUp = 0;
+int tLastDown = 0;
 
 
 void initSL() {
@@ -18,13 +22,18 @@ void initSL() {
     pinMode(GO_PIN, INPUT);
     pinMode(TRIG_PIN, OUTPUT);
     pinMode(ECHO_PIN, INPUT);
+    pinMode(UP_RAMP, INPUT);
+    pinMode(DOWN_RAMP, INPUT);
 
     attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_EXT), ext_limit_handler, RISING);
     attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_RET), ret_limit_handler, RISING);
     attachInterrupt(digitalPinToInterrupt(SL_ENCODER), encoder_handler, RISING);
     attachInterrupt(digitalPinToInterrupt(GO_PIN), go_handler, RISING);
     attachInterrupt(digitalPinToInterrupt(UP_RAMP), incrementLap, RISING);
+    attachInterrupt(digitalPinToInterrupt(DOWN_RAMP), downRamp, RISING);
     go = false;
+    lapCount = 0;
+    rampState = 0;
 
 }
 
@@ -63,7 +72,7 @@ void extend() {
         Serial3.println("Detected High Extentsion switch and tried to extend!");
     }
     else {
-        Serial3.println("Extending");
+        //Serial3.println("Extending");
         pwm_start(SCISSOR_MOTOR_DOWN, 50, 0, RESOLUTION_12B_COMPARE_FORMAT);
         pwm_start(SCISSOR_MOTOR_UP, 75, 4000, RESOLUTION_12B_COMPARE_FORMAT);
         extending = 1;
@@ -83,7 +92,7 @@ void retract() {
 }
 
 void stopScissor() {
-    Serial3.println("Stop Scissor fcn");
+   // Serial3.println("Stop Scissor fcn");
     pwm_start(SCISSOR_MOTOR_UP, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(SCISSOR_MOTOR_DOWN, 50, 0, RESOLUTION_12B_COMPARE_FORMAT);
     extending = 0;
@@ -131,16 +140,16 @@ void mountingDrivingRoutine(){
     Serial3.println("Performing Mounting Driving Routine");
     pwm_start(RMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-    pwm_start(RMOTORFORWARD, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
-    pwm_start(LMOTORFORWARD, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
+    pwm_start(RMOTORFORWARD, 75, 2500, RESOLUTION_12B_COMPARE_FORMAT);
+    pwm_start(LMOTORFORWARD, 75, 2700, RESOLUTION_12B_COMPARE_FORMAT);
 }
 
 void dismountDrivingRoutine(){
     Serial3.println("Performing Dismount Driving Routine");
     delay(1000);
-    pwm_start(RMOTORFORWARD, 75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
+    pwm_start(RMOTORFORWARD, 75, 2800, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORFORWARD, 75, 600, RESOLUTION_12B_COMPARE_FORMAT);
-    delay(1000);
+    delay(500);
     pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     delay(1000);
@@ -152,10 +161,23 @@ void dismountDrivingRoutine(){
 }
 
 void incrementLap(){
-    lapCount+=1;
-    rampState+=1;
+    if(millis()-tLastUp > INTERRUPT_COOLDOWN_MS){
+    tLastUp = millis();
+    rampState++;
+    if(rampState == 1){
+        lapCount++;
+    }
+    Serial3.println("GOING UP");
+    }
 }
 
+void downRamp(){
+    if(millis()-tLastDown > INTERRUPT_COOLDOWN_MS){
+    tLastDown = millis();
+    rampState--;
+    Serial3.println("GOING DOWN");
+}
+}
 
 
 

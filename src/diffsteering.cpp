@@ -4,8 +4,8 @@
 
 
 #define THRESHOLD 500
-#define LMARKERTHRESHOLD 800
-#define RMARKERTHRESHOLD 900
+#define LMARKERTHRESHOLD 1050
+#define RMARKERTHRESHOLD 1050
 #define ZEROERRORVAL 600
 #define LED_BUILTIN PC13
 #define PWM_PERCENTAGE 30 //Update this to change motor speed (0-100)
@@ -101,7 +101,7 @@ return previousState;
 
 int getSteeringVal(int currentErrorState, int previousState) {
   
-  double kp = 0.48;
+  double kp = 0.45;
   double kd = 0.3;
   double ki = 0;
   double scaleFactor = 4*((1/(1 + exp(kp*currentErrorState + kd*(currentErrorState - previousState)))) - 0.5); //-2 to 2
