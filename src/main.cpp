@@ -5,6 +5,7 @@
 #include "diffsteering.h" //differential steering funcitons
 #include "objectcollection.h" //object collection funcutions
 #include "scissorLift.h"
+#include "MovingAverage.h"
 using namespace std;
 
 #define DERIV_OVER_MS 100
@@ -22,10 +23,9 @@ bool atTopOfRamp = false;
 
 // Variable Declaration
 HardwareSerial Serial3(USART3);
+MovingAverage movingAverage(100); //exponential moving average using approx 100 terms
 #define AVERAGE_OVER 1000
-unsigned long tLastDeriv = millis();
 
-volatile int derivState = 0;
 volatile int previousState = 0;
 int loopCount = 0;
 unsigned long tLastLPSCalc = millis();
@@ -81,12 +81,9 @@ void loop() {
     
     case TAPE_FOLLOW_STATE: {
       // ---- DRIVING -----
-      if(millis()-tLastDeriv > DERIV_OVER_MS){
-        tLastDeriv = millis();
-        derivState = previousState;
-      }
+      movingAverage.update(previousState);
       int currentState = getErrorState(previousState);
-      int steeringVal = getSteeringVal(currentState, derivState);
+      int steeringVal = getSteeringVal(currentState, movingAverage.get());
       startDriveMotors(steeringVal);
       previousState = currentState;
       if(rampState == 1 & lastRampState == 0){
@@ -105,12 +102,9 @@ void loop() {
       int prevRampState = rampState;
       if(rampState == 1 &&!topOfRamp) {
         if(!((analogRead(LEFTSENSE) > 500 && analogRead(MIDLEFTSENSE) > 500 && analogRead(MIDRIGHTSENSE) > 500 && analogRead(RIGHTSENSE) > 500))){
-        if(millis()-tLastDeriv > DERIV_OVER_MS){
-        tLastDeriv = millis();
-        derivState = previousState;
-      }
+        movingAverage.update(previousState);
       int currentState = getErrorState(previousState);
-      int steeringVal = getSteeringVal(currentState, derivState);
+      int steeringVal = getSteeringVal(currentState, movingAverage.get());
       startDriveMotors(steeringVal);
       previousState = currentState;
         } else{
