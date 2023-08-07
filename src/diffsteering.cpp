@@ -101,7 +101,7 @@ int getErrorState(int previousState)
   return previousState;
 }
 
-int getSteeringVal(int currentErrorState, int previousState)
+int getSteeringVal(int currentErrorState, double previousState)
 {
 
   double kp = 0.45;

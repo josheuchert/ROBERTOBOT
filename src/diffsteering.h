@@ -23,7 +23,7 @@ void drivePinInit();
 int getErrorState(int previousState);
 /*Outputs a steering value from -2*duty cycle to 2*duty cycle that represents the steering angle desired
 depends on values of P and D in PID (I term not implemented yet)*/
-int getSteeringVal(int currentErrorState, int previousErrorState);
+int getSteeringVal(int currentErrorState, double previousErrorState);
 /*starts pwm for each wheel based on the steering value
 */
 void startDriveMotors(int steeringVal);
