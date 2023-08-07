@@ -40,12 +40,13 @@ void setup() {
   Serial3.begin(9600); //BLUEPILL TX: B10, RX:B11
 
   drivePinInit();
-  //objCollectionInit();
-  pinMode(LED_BUILTIN, OUTPUT);
+  objCollectionInit();
   initSL(); //scissorlift init
+  
+  //pinMode(LED_BUILTIN, OUTPUT);
 
   currentStateMachine = TAPE_FOLLOW_STATE;
-  pwm_start(ELASTIFORWARD,75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
+  //pwm_start(ELASTIFORWARD, 75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
 }
 
 

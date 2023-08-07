@@ -26,7 +26,7 @@ void bombRoutine(){ //should be in bomb routine while bomb is being detected
 
 void normalObjRoutine(){
     pwm_start(ELASTIREVERSE, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-    pwm_start(ELASTIFORWARD, 75, ELASTIFORWARD, RESOLUTION_12B_COMPARE_FORMAT);
+    pwm_start(ELASTIFORWARD, 75, NORMAL_SPEED, RESOLUTION_12B_COMPARE_FORMAT);
 }
 
 void elastiEncoder(){
