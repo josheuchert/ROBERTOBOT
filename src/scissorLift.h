@@ -15,8 +15,8 @@
 #define DRIVE_PWM_FOR_MOUNTING 2000
 #define SONAR_CLIFF_HEIGHT 7
 #define SONAR_GROUND 3
-#define DOWN_RAMP PC14
-#define UP_RAMP PC13
+#define DOWN_RAMP PB14
+#define UP_RAMP PB15
 #define INTERRUPT_COOLDOWN_MS 500
 
  //0 when scissorlift is fully retracted
