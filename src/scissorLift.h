@@ -11,7 +11,7 @@
 #define GO_PIN PB14
 #define SL_EXTEND_SPEED 3000
 #define SL_RETRACT_SPEED 3000
-#define MOUNTPOSITION 2075
+#define MOUNTPOSITION 2100
 #define DRIVE_PWM_FOR_MOUNTING 2000
 #define SONAR_CLIFF_HEIGHT 7
 #define SONAR_GROUND 3
@@ -24,7 +24,7 @@ extern int encoderPosition;
 extern bool go;
 extern bool extending;
 extern int lapCount;
-extern int rampState;
+extern volatile int rampState;
 
 //Initialize switches and encoder pins
 void initSL();
@@ -65,8 +65,10 @@ void mountingDrivingRoutine();
 //Driving off the zipline and retracting SL
 void dismountDrivingRoutine();
 
+//increments the lap counter if going up the ramp, gets ready for zipline state
 void incrementLap();
 
+//decrements ramp state
 void downRamp();
 
 

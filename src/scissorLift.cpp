@@ -9,7 +9,7 @@ bool go;
 bool extending;
 volatile bool calibrateStatus;
 int lapCount = 0;
-int rampState = 0;
+volatile int rampState = 0;
 int tLastUp = 0;
 int tLastDown = 0;
 
@@ -148,7 +148,7 @@ void dismountDrivingRoutine(){
     Serial3.println("Performing Dismount Driving Routine");
     delay(1000);
     pwm_start(RMOTORFORWARD, 75, 2800, RESOLUTION_12B_COMPARE_FORMAT);
-    pwm_start(LMOTORFORWARD, 75, 600, RESOLUTION_12B_COMPARE_FORMAT);
+    pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     delay(500);
     pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
@@ -164,7 +164,9 @@ void incrementLap(){
     if(millis()-tLastUp > INTERRUPT_COOLDOWN_MS){
     tLastUp = millis();
     rampState++;
+    Serial3.println(rampState);
     if(rampState == 1){
+        Serial3.println("INCREMENTED LAP");
         lapCount++;
     }
     Serial3.println("GOING UP");

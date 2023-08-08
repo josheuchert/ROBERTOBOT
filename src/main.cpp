@@ -18,7 +18,7 @@
 #define ON_ZIPLINE 6
 #define EXTENDING_SL 7
 #define ERROR_LED PA3
-const int ZIPLINE_LAPS[1] = {500};
+const int ZIPLINE_LAPS[1] = {1};
 bool atTopOfRamp = true;
 #define TAPE_MARKER_STATE_DELAY_MS 50
 long lastMarker = millis();
@@ -55,8 +55,8 @@ void setup() {
   digitalWrite(ERROR_LED, LOW);
   initSL(); //scissorlift init
   //normalObjRoutine();
-  pwm_start(ELASTIFORWARD,75,3000, RESOLUTION_12B_COMPARE_FORMAT);
-  currentStateMachine = TAPE_FOLLOW_STATE;
+  //pwm_start(ELASTIFORWARD,75,3000, RESOLUTION_12B_COMPARE_FORMAT);
+  currentStateMachine = CALIBRATE_STATE;
   // pwm_start(ELASTIFORWARD,75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
   prev_time = millis() + 2000;
 }
@@ -133,6 +133,7 @@ void loop() {
       
     
     case MOUNT_SL: {
+      Serial3.println("ENTERED MOUNTING");
       int prevRampState = rampState;
       if(rampState == 1 &&!topOfRamp) {
         if(!((analogRead(LEFTSENSE) > 500 && analogRead(MIDLEFTSENSE) > 500 && analogRead(MIDRIGHTSENSE) > 500 && analogRead(RIGHTSENSE) > 500))){
