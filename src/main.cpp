@@ -52,6 +52,7 @@ void setup() {
   pinMode(ERROR_LED, OUTPUT);
 digitalWrite(ERROR_LED, LOW);
   initSL(); //scissorlift init
+  normalObjRoutine();
   currentStateMachine = TAPE_FOLLOW_STATE;
   //pwm_start(ELASTIFORWARD,75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
 }
@@ -85,6 +86,7 @@ void loop() {
       delay(500);
       //if go switch is flipped 
       currentStateMachine = TAPE_FOLLOW_STATE;
+
       Serial3.println("ENTER TAPE FOLLOW STATE");
       //pwm_start(ELASTIFORWARD,75,2000, RESOLUTION_12B_COMPARE_FORMAT);
     }
@@ -96,7 +98,11 @@ void loop() {
       movingAverage.update(previousState);
       int currentState = getErrorState(previousState);
       int steeringVal = getSteeringVal(currentState, movingAverage.get());
-      startDriveMotors(steeringVal);
+      //startDriveMotors(steeringVal);
+      if(millis() - prev_time > 500) {
+        checkStall();
+        prev_time = millis();
+      }
       previousState = currentState;
       if(rampState == 1 & lastRampState == 0){
         lastRampState++;
