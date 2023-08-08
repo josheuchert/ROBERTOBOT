@@ -7,8 +7,8 @@
 #define RMARKERTHRESHOLD 1050
 #define ZEROERRORVAL 600
 #define LED_BUILTIN PC13
-#define PWM_PERCENTAGE 30 // Update this to change motor speed (0-100)
-#define STRAIGHTLINE_PWM_PERCENT 30
+#define PWM_PERCENTAGE 50 // Update this to change motor speed (0-100)
+#define STRAIGHTLINE_PWM_PERCENT 50
 #define PWM_MAX 4095
 #define PWM_DEADZONE 650 // PWM from 0-650 do not result in rotation of the motor
 const int DRIVE_MOTOR_DUTY_CYCLE(((PWM_MAX - PWM_DEADZONE) * PWM_PERCENTAGE / 100) + PWM_DEADZONE);
@@ -40,71 +40,101 @@ int getErrorState(int previousState)
   // If we need to turn right (tape is to right of sensors) error is positive
   // If we need to turn left, error is negative
 
-  if (currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
+  if (currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD)
   {
+    digitalWrite(PA3, LOW);
     return 0;
   }
-  else if (currentStateMidLeft > THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
+  else if (currentStateMidLeft > THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD)
   {
+    digitalWrite(PA3, LOW);
     return -1;
   }
-  else if (currentStateMidRight > THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
+  else if(currentStateMidLeft > THRESHOLD && currentStateLeft > THRESHOLD && currentStateMidRight > THRESHOLD && currentStateRight < THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD){
+    digitalWrite(PA3, LOW);
+    return -1;
+  }
+  else if (currentStateMidRight > THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD)
   {
+    digitalWrite(PA3, LOW);
     return 1;
   }
-  else if (currentStateMidLeft > THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight < THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
+  else if (currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight > THRESHOLD  && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
   {
+    digitalWrite(PA3, LOW);
+    return 1;
+  }
+  else if (currentStateMidLeft > THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight < THRESHOLD)
+  {
+    digitalWrite(PA3, LOW);
     return -2;
   }
 
-  else if (currentStateMidRight > THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight > THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
+  else if (currentStateMidRight > THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight > THRESHOLD)
   {
+    digitalWrite(PA3, LOW);
     return 2;
   }
 
-  else if (currentStateMidLeft < THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight < THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
+  else if (currentStateMidLeft < THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight < THRESHOLD)
   {
+    digitalWrite(PA3, LOW);
     return -3;
   }
 
-  else if (currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight > THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
+  else if (currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight > THRESHOLD)
   {
+    digitalWrite(PA3, LOW);
     return 3;
   }
 
-  else if (currentStateMidLeft < THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState < 0 && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
+  else if (currentStateMidLeft < THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState < 0 && previousState > -5)
   {
+    digitalWrite(PA3, LOW);
     return -4;
   }
 
-  else if (currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState > 0 && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
+  else if (currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState > 0 && previousState < 5)
   {
+    digitalWrite(PA3, LOW);
     return 4;
-  }
-  else if (currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState < 0 && leftMarkerReading > THRESHOLD && rightMarkerReading < THRESHOLD)
-  {
-    return -5;
-  }
-  else if (currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState > 0 && leftMarkerReading < THRESHOLD && rightMarkerReading > THRESHOLD)
-  {
-    return 5;
+  } else if(currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState > 0 && rightMarkerReading > THRESHOLD && leftMarkerReading < THRESHOLD){
+    digitalWrite(PA3, LOW);
+    return 6;
+  }  else if(currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState < 0 && rightMarkerReading < THRESHOLD && leftMarkerReading > THRESHOLD){
+    digitalWrite(PA3, LOW);
+    return -6;
   }
   else if (currentStateMidLeft < THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState == -5 && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
   {
-    return -6;
+    digitalWrite(PA3, LOW);
+    return -10;
   }
   else if (currentStateMidLeft < THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState == 5 && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
   {
-    return 6;
+    digitalWrite(PA3, LOW);
+    return 10;
   }
-
+  digitalWrite(PA3, HIGH);
+    // Serial3.print(analogRead(LMARKERSENSE));
+    // Serial3.print(" ");
+    // Serial3.print(analogRead(LEFTSENSE));
+    // Serial3.print(" ");
+    // Serial3.print(analogRead(MIDLEFTSENSE));
+    // Serial3.print(" ");
+    // Serial3.print(analogRead(MIDRIGHTSENSE));
+    // Serial3.print(" ");
+    // Serial3.print(analogRead(RIGHTSENSE));
+    // Serial3.print(" ");
+    // Serial3.print(analogRead(RMARKERSENSE));
+    // Serial3.println();
   return previousState;
 }
 
 int getSteeringVal(int currentErrorState, double previousState)
 {
 
-  double kp = 0.45;
+  double kp = 0.35;
   double kd = 0.3;
   double ki = 0;
   double scaleFactor = 4 * ((1 / (1 + exp(kp * currentErrorState + kd * (currentErrorState - previousState)))) - 0.5); //-2 to 2
@@ -132,7 +162,7 @@ void startDriveMotors(int steeringVal)
     }
     if (i == 1)
     {
-      steeringVal = steeringVal * 1.5;
+      steeringVal = steeringVal * 1.75;
     }
     pwm_start(DRIVE_MOTORS[j][1], 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(DRIVE_MOTORS[j][0], 75, DRIVE_MOTOR_DUTY_CYCLE, RESOLUTION_12B_COMPARE_FORMAT);

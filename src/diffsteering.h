@@ -2,16 +2,16 @@
 #ifndef DIFF_STEERING
 #define DIFF_STEERING
 
-#define LEFTSENSE PA7
-#define MIDLEFTSENSE PA6
-#define MIDRIGHTSENSE PB1
-#define RIGHTSENSE PB0
-#define LMOTORFORWARD PB_6
-#define LMOTORBACK PB_7
-#define RMOTORFORWARD PB_9
-#define RMOTORBACK PB_8
+#define LEFTSENSE PA6
+#define MIDLEFTSENSE PA7
+#define MIDRIGHTSENSE PB0
+#define RIGHTSENSE PB1     
+#define LMOTORFORWARD PB_9
+#define LMOTORBACK PB_8
+#define RMOTORFORWARD PB_7
+#define RMOTORBACK PB_6
 #define LMARKERSENSE PA4
-#define RMARKERSENSE PA3
+#define RMARKERSENSE PA5
 
 extern bool bottomRampGoingUp;
 extern bool bottomRampGoingDown;
