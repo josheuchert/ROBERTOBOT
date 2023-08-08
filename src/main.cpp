@@ -6,7 +6,6 @@
 #include "objectcollection.h" //object collection funcutions
 #include "scissorLift.h"
 #include "MovingAverage.h"
-using namespace std;
 
 #define DERIV_OVER_MS 100
 
