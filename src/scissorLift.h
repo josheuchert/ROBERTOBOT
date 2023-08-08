@@ -8,7 +8,7 @@
 #define SL_ENCODER PA15
 #define TRIG_PIN PB3
 #define ECHO_PIN PB4
-#define GO_PIN PB14
+//#define GO_PIN PB14
 #define SL_EXTEND_SPEED 3000
 #define SL_RETRACT_SPEED 3000
 #define MOUNTPOSITION 2100

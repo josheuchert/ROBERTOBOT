@@ -89,6 +89,7 @@ void loop() {
       currentStateMachine = POLL_GO_STATE;
       Serial3.println("ENTER MOUNT SL STATE");
       delay(1000);}
+      rampState = 0;
       break;
 
     case POLL_GO_STATE:{
@@ -133,7 +134,7 @@ void loop() {
       
     
     case MOUNT_SL: {
-      Serial3.println("ENTERED MOUNTING");
+      //Serial3.println("ENTERED MOUNTING");
       int prevRampState = rampState;
       if(rampState == 1 &&!topOfRamp) {
         if(!((analogRead(LEFTSENSE) > 500 && analogRead(MIDLEFTSENSE) > 500 && analogRead(MIDRIGHTSENSE) > 500 && analogRead(RIGHTSENSE) > 500))){
