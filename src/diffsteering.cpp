@@ -37,12 +37,16 @@ int getErrorState(int previousState)
   int leftMarkerReading = analogRead(LMARKERSENSE);
   int rightMarkerReading = analogRead(RMARKERSENSE);
 
+
   // If we need to turn right (tape is to right of sensors) error is positive
   // If we need to turn left, error is negative
 
   if (currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD)
   {
     digitalWrite(PA3, LOW);
+    return 0;
+  }
+  if(currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight > THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading <THRESHOLD){
     return 0;
   }
   else if (currentStateMidLeft > THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD)
@@ -98,10 +102,10 @@ int getErrorState(int previousState)
   {
     digitalWrite(PA3, LOW);
     return 4;
-  } else if(currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState > 0 && rightMarkerReading > THRESHOLD && leftMarkerReading < THRESHOLD){
+   } else if(currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState >=4 &&rightMarkerReading > THRESHOLD && leftMarkerReading < THRESHOLD){
     digitalWrite(PA3, LOW);
     return 6;
-  }  else if(currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState < 0 && rightMarkerReading < THRESHOLD && leftMarkerReading > THRESHOLD){
+  }  else if(currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && rightMarkerReading < THRESHOLD && leftMarkerReading > THRESHOLD && previousState <= -4 ){
     digitalWrite(PA3, LOW);
     return -6;
   }
@@ -114,6 +118,17 @@ int getErrorState(int previousState)
   {
     digitalWrite(PA3, LOW);
     return 10;
+  } else if(currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight > THRESHOLD && leftMarkerReading > THRESHOLD && rightMarkerReading > THRESHOLD) {
+    return 50;
+  } else if(currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight > THRESHOLD && leftMarkerReading > THRESHOLD && rightMarkerReading < THRESHOLD) {
+    return 50;
+  }
+  else if(currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight > THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading > THRESHOLD) {
+    return 50;
+  } else if(currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight > THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading > THRESHOLD) {
+    return 50;
+  }else if(currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight < THRESHOLD && leftMarkerReading > THRESHOLD && rightMarkerReading < THRESHOLD) {
+    return 50;
   }
   digitalWrite(PA3, HIGH);
     // Serial3.print(analogRead(LMARKERSENSE));
@@ -135,7 +150,7 @@ int getSteeringVal(int currentErrorState, double previousState)
 {
 
   double kp = 0.35;
-  double kd = 0.3;
+  double kd = 0.35;
   double ki = 0;
   double scaleFactor = 4 * ((1 / (1 + exp(kp * currentErrorState + kd * (currentErrorState - previousState)))) - 0.5); //-2 to 2
 
