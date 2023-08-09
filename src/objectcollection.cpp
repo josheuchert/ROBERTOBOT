@@ -8,19 +8,9 @@
 volatile int elastiClicks = 0;
 volatile int prevElastiClicks = 0;
 bool stallState = 0;
-#define ELASTIPWM 3000//Powered at 12V so keep under ~3000
-#define ELASTIPWM 2000//Powered at 12V so keep under ~3000
-#define REVERSEPWM 500
-
-volatile int elastiClicks = 0;
-volatile int prevElastiClicks = 0;
-bool stallState = 0;
 
 int elastiSpeed = 0;
 int prevTime = 0;
-int elastiClicks = 0;
-int prevElastiClicks = 0;
-bool stallState = 0;
 
 
 void objCollectionInit(){
