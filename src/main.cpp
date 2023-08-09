@@ -19,7 +19,7 @@
 #define IGNORE_GYRO_OFF_START_MS 1000
 
 // Other definitions
-#define GO_SWITCH PB12
+#define GO_SWITCH PB14
 
 #define AVERAGE_OVER 1000
 #define TAPE_MARKER_STATE_DELAY_MS 50
@@ -47,7 +47,7 @@ int currentStateMachine;
 void loopRate();
 
 //Strategy Information
-const int ZIPLINE_LAPS[1] = {1};
+const int ZIPLINE_LAPS[3] = {1, 2, 3};
 
 
 // Setup
@@ -68,6 +68,8 @@ void setup() {
 }
 
 void loop() {
+  long distance = getDistanceFromFloor();
+  Serial3.println(distance);
 
   switch (currentStateMachine) {
 
@@ -88,10 +90,13 @@ void loop() {
       {
         delay(50);
       }
-      tStart = millis();
-      currentStateMachine = TAPE_FOLLOW_STATE;
-      Serial3.println("ENTER TAPE FOLLOW STATE");
-      normalObjRoutine();
+      delay(10);
+      if (digitalRead(GO_SWITCH) == LOW) {
+        tStart = millis();
+        currentStateMachine = TAPE_FOLLOW_STATE;
+        Serial3.println("ENTER TAPE FOLLOW STATE");
+        normalObjRoutine();
+      } 
     }
     break;
         
@@ -151,7 +156,7 @@ void loop() {
           
           if(topOfRamp == true) {
             distanceCM = getDistanceFromFloor();
-            //Serial3.println(distanceCM); Add back in for debugging 
+            Serial3.println(distanceCM); 
             if (distanceCM >= SONAR_CLIFF_HEIGHT) {
               Serial3.println("Over the cliff");
               Serial3.println(distanceCM);

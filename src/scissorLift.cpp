@@ -120,7 +120,7 @@ long getDistanceFromFloor() {
     digitalWrite(TRIG_PIN, LOW);
     long duration = pulseIn(ECHO_PIN, HIGH);
 
-    return duration / 29 / 2;
+    return duration / 29;
 
 }
 
