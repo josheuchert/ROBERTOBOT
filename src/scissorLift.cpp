@@ -134,15 +134,19 @@ void mountingDrivingRoutine(){
     pwm_start(LMOTORFORWARD, 75, 2300, RESOLUTION_12B_COMPARE_FORMAT);
 }
 
-void dismountDrivingRoutine(){
-    Serial3.println("Performing Dismount Driving Routine");
+void dismountRoutine(){
+    Serial3.println("Performing Dismount  Routine");
+    
     delay(500);
+    stopScissor();
+    delay(200);
     pwm_start(RMOTORFORWARD, 75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORBACK, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
     delay(500);
     pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+    pwm_start(LMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     calibrateStatus = 0;
     retract();
     while (calibrateStatus == 0){
