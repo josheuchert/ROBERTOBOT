@@ -2,11 +2,7 @@
 #include <Wire.h>
 #include <diffsteering.h>
 
-#define THRESHOLD 500
-#define LMARKERTHRESHOLD 1050
-#define RMARKERTHRESHOLD 1050
-#define ZEROERRORVAL 600
-#define LED_BUILTIN PC13
+
 #define PWM_PERCENTAGE 50 // Update this to change motor speed (0-100)
 #define STRAIGHTLINE_PWM_PERCENT 50
 #define PWM_MAX 4095
@@ -14,8 +10,6 @@
 const int DRIVE_MOTOR_DUTY_CYCLE(((PWM_MAX - PWM_DEADZONE) * PWM_PERCENTAGE / 100) + PWM_DEADZONE);
 const int STRAIGHTLINE_DUTY_CYCLE = (((PWM_MAX - PWM_DEADZONE) * PWM_PERCENTAGE / 100) + PWM_DEADZONE);
 const PinName DRIVE_MOTORS[2][2] = {{RMOTORFORWARD, RMOTORBACK}, {LMOTORFORWARD, LMOTORBACK}};
-bool bottomRampGoingUp;
-bool bottomRampGoingDown;
 bool topOfRamp;
 
 void drivePinInit()
@@ -41,108 +35,97 @@ int getErrorState(int previousState)
   // If we need to turn right (tape is to right of sensors) error is positive
   // If we need to turn left, error is negative
 
-  if (currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD)
+  if (currentStateMidRight > TAPE_THRESHOLD && currentStateMidLeft > TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD)
   {
     digitalWrite(PA3, LOW);
     return 0;
   }
-  if(currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight > THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading <THRESHOLD){
+  if(currentStateMidRight > TAPE_THRESHOLD && currentStateMidLeft > TAPE_THRESHOLD && currentStateLeft > TAPE_THRESHOLD && currentStateRight > TAPE_THRESHOLD && leftMarkerReading < TAPE_THRESHOLD && rightMarkerReading <TAPE_THRESHOLD){
     return 0;
   }
-  else if (currentStateMidLeft > THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD)
+  else if (currentStateMidLeft > TAPE_THRESHOLD && currentStateMidRight < TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD)
   {
     digitalWrite(PA3, LOW);
     return -1;
   }
-  else if(currentStateMidLeft > THRESHOLD && currentStateLeft > THRESHOLD && currentStateMidRight > THRESHOLD && currentStateRight < THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD){
+  else if(currentStateMidLeft > TAPE_THRESHOLD && currentStateLeft > TAPE_THRESHOLD && currentStateMidRight > TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD && leftMarkerReading < TAPE_THRESHOLD && rightMarkerReading < TAPE_THRESHOLD){
     digitalWrite(PA3, LOW);
     return -1;
   }
-  else if (currentStateMidRight > THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD)
+  else if (currentStateMidRight > TAPE_THRESHOLD && currentStateMidLeft < TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD)
   {
     digitalWrite(PA3, LOW);
     return 1;
   }
-  else if (currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight > THRESHOLD  && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
+  else if (currentStateMidRight > TAPE_THRESHOLD && currentStateMidLeft > TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight > TAPE_THRESHOLD  && leftMarkerReading < TAPE_THRESHOLD && rightMarkerReading < TAPE_THRESHOLD)
   {
     digitalWrite(PA3, LOW);
     return 1;
   }
-  else if (currentStateMidLeft > THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight < THRESHOLD)
+  else if (currentStateMidLeft > TAPE_THRESHOLD && currentStateMidRight < TAPE_THRESHOLD && currentStateLeft > TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD)
   {
     digitalWrite(PA3, LOW);
     return -2;
   }
 
-  else if (currentStateMidRight > THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight > THRESHOLD)
+  else if (currentStateMidRight > TAPE_THRESHOLD && currentStateMidLeft < TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight > TAPE_THRESHOLD)
   {
     digitalWrite(PA3, LOW);
     return 2;
   }
 
-  else if (currentStateMidLeft < THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight < THRESHOLD)
+  else if (currentStateMidLeft < TAPE_THRESHOLD && currentStateMidRight < TAPE_THRESHOLD && currentStateLeft > TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD)
   {
     digitalWrite(PA3, LOW);
     return -3;
   }
 
-  else if (currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight > THRESHOLD)
+  else if (currentStateMidRight < TAPE_THRESHOLD && currentStateMidLeft < TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight > TAPE_THRESHOLD)
   {
     digitalWrite(PA3, LOW);
     return 3;
   }
 
-  else if (currentStateMidLeft < THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState < 0 && previousState > -5)
+  else if (currentStateMidLeft < TAPE_THRESHOLD && currentStateMidRight < TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD && previousState < 0 && previousState > -5)
   {
     digitalWrite(PA3, LOW);
     return -4;
   }
 
-  else if (currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState > 0 && previousState < 5)
+  else if (currentStateMidRight < TAPE_THRESHOLD && currentStateMidLeft < TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD && previousState > 0 && previousState < 5)
   {
     digitalWrite(PA3, LOW);
     return 4;
-   } else if(currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState >=4 &&rightMarkerReading > THRESHOLD && leftMarkerReading < THRESHOLD){
+   } else if(currentStateMidRight < TAPE_THRESHOLD && currentStateMidLeft < TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD && previousState >=4 &&rightMarkerReading > TAPE_THRESHOLD && leftMarkerReading < TAPE_THRESHOLD){
     digitalWrite(PA3, LOW);
     return 6;
-  }  else if(currentStateMidRight < THRESHOLD && currentStateMidLeft < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && rightMarkerReading < THRESHOLD && leftMarkerReading > THRESHOLD && previousState <= -4 ){
+  }  else if(currentStateMidRight < TAPE_THRESHOLD && currentStateMidLeft < TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD && rightMarkerReading < TAPE_THRESHOLD && leftMarkerReading > TAPE_THRESHOLD && previousState <= -4 ){
     digitalWrite(PA3, LOW);
     return -6;
   }
-  else if (currentStateMidLeft < THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState == -5 && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
+  else if (currentStateMidLeft < TAPE_THRESHOLD && currentStateMidRight < TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD && previousState == -5 && leftMarkerReading < TAPE_THRESHOLD && rightMarkerReading < TAPE_THRESHOLD)
   {
     digitalWrite(PA3, LOW);
     return -10;
   }
-  else if (currentStateMidLeft < THRESHOLD && currentStateMidRight < THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight < THRESHOLD && previousState == 5 && leftMarkerReading < THRESHOLD && rightMarkerReading < THRESHOLD)
+  else if (currentStateMidLeft < TAPE_THRESHOLD && currentStateMidRight < TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD && previousState == 5 && leftMarkerReading < TAPE_THRESHOLD && rightMarkerReading < TAPE_THRESHOLD)
   {
     digitalWrite(PA3, LOW);
     return 10;
-  } else if(currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight > THRESHOLD && leftMarkerReading > THRESHOLD && rightMarkerReading > THRESHOLD) {
+  } else if(currentStateMidRight > TAPE_THRESHOLD && currentStateMidLeft > TAPE_THRESHOLD && currentStateLeft > TAPE_THRESHOLD && currentStateRight > TAPE_THRESHOLD && leftMarkerReading > TAPE_THRESHOLD && rightMarkerReading > TAPE_THRESHOLD) {
     return 50;
-  } else if(currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight > THRESHOLD && leftMarkerReading > THRESHOLD && rightMarkerReading < THRESHOLD) {
-    return 50;
-  }
-  else if(currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight > THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading > THRESHOLD) {
-    return 50;
-  } else if(currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft < THRESHOLD && currentStateRight > THRESHOLD && leftMarkerReading < THRESHOLD && rightMarkerReading > THRESHOLD) {
-    return 50;
-  }else if(currentStateMidRight > THRESHOLD && currentStateMidLeft > THRESHOLD && currentStateLeft > THRESHOLD && currentStateRight < THRESHOLD && leftMarkerReading > THRESHOLD && rightMarkerReading < THRESHOLD) {
+  } else if(currentStateMidRight > TAPE_THRESHOLD && currentStateMidLeft > TAPE_THRESHOLD && currentStateLeft > TAPE_THRESHOLD && currentStateRight > TAPE_THRESHOLD && leftMarkerReading > TAPE_THRESHOLD && rightMarkerReading < TAPE_THRESHOLD) {
     return 50;
   }
+  else if(currentStateMidRight > TAPE_THRESHOLD && currentStateMidLeft > TAPE_THRESHOLD && currentStateLeft > TAPE_THRESHOLD && currentStateRight > TAPE_THRESHOLD && leftMarkerReading < TAPE_THRESHOLD && rightMarkerReading > TAPE_THRESHOLD) {
+    return 50;
+  } else if(currentStateMidRight > TAPE_THRESHOLD && currentStateMidLeft > TAPE_THRESHOLD && currentStateLeft < TAPE_THRESHOLD && currentStateRight > TAPE_THRESHOLD && leftMarkerReading < TAPE_THRESHOLD && rightMarkerReading > TAPE_THRESHOLD) {
+    return 50;
+  }else if(currentStateMidRight > TAPE_THRESHOLD && currentStateMidLeft > TAPE_THRESHOLD && currentStateLeft > TAPE_THRESHOLD && currentStateRight < TAPE_THRESHOLD && leftMarkerReading > TAPE_THRESHOLD && rightMarkerReading < TAPE_THRESHOLD) {
+    return 50;
+  }
+  
   digitalWrite(PA3, HIGH);
-    // Serial3.print(analogRead(LMARKERSENSE));
-    // Serial3.print(" ");
-    // Serial3.print(analogRead(LEFTSENSE));
-    // Serial3.print(" ");
-    // Serial3.print(analogRead(MIDLEFTSENSE));
-    // Serial3.print(" ");
-    // Serial3.print(analogRead(MIDRIGHTSENSE));
-    // Serial3.print(" ");
-    // Serial3.print(analogRead(RIGHTSENSE));
-    // Serial3.print(" ");
-    // Serial3.print(analogRead(RMARKERSENSE));
-    // Serial3.println();
   return previousState;
 }
 
@@ -189,7 +172,12 @@ void startDriveMotors(int steeringVal)
     else
     {
       pwm_start(DRIVE_MOTORS[i][0], 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+      if(abs(steeringVal) - DRIVE_MOTOR_DUTY_CYCLE + PWM_DEADZONE > 4095){
+        pwm_start(DRIVE_MOTORS[i][1], 75, 4095, RESOLUTION_12B_COMPARE_FORMAT);
+      }
+      else{
       pwm_start(DRIVE_MOTORS[i][1], 75, abs(steeringVal) - DRIVE_MOTOR_DUTY_CYCLE + PWM_DEADZONE, RESOLUTION_12B_COMPARE_FORMAT);
+      }
     }
   }
   if (steeringVal == 0)
@@ -200,23 +188,6 @@ void startDriveMotors(int steeringVal)
       pwm_start(DRIVE_MOTORS[i][0], 75, STRAIGHTLINE_DUTY_CYCLE, RESOLUTION_12B_COMPARE_FORMAT);
     }
   }
-}
-
-int getGryoFromSerial()
-{
-  if (Serial3.available())
-  { // checks serial port to see if there is a message from gyro
-    int val = Serial3.readString().toInt();
-    if (val == 1)
-    { // 1 over serial = negative transition (flat to down or up to flat)
-      return -1;
-    }
-    else if (val == 2)
-    { // 2 over serial = positive transition (flat to up or )
-      return 1;
-    }
-  }
-  return 0;
 }
 
 void stopDriveMotors()

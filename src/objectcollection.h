@@ -7,6 +7,7 @@
 #define ELASTIENCODER PA3
 
 #define BOMB_ROUTINE_MS 3000
+#define NORMAL_SPEED 2000
 
 volatile extern int elastiClicks;
 
