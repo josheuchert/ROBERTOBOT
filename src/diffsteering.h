@@ -12,9 +12,8 @@
 #define RMOTORBACK PB_6
 #define LMARKERSENSE PA4
 #define RMARKERSENSE PA5
+#define TAPE_THRESHOLD 500
 
-extern bool bottomRampGoingUp;
-extern bool bottomRampGoingDown;
 extern bool topOfRamp;
 
 /*Assigns pins to their required states for the steering code to work (Use only in setup) */
@@ -30,8 +29,5 @@ void startDriveMotors(int steeringVal);
 
 /*Stops motors*/
 void stopDriveMotors();
-/*reads serial if available and returns the transition value
-returns -1 for a downwards transition, 1 for an upwards transition or 0 for no transition*/
-int getGryoFromSerial();
 
 #endif

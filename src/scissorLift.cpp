@@ -28,7 +28,6 @@ void initSL() {
     go = false;
     lapCount = 0;
     rampState = 0;
-    //attachInterrupt(digitalPinToInterrupt(UP_RAMP), incrementLap, RISING);
 
 }
 
@@ -47,10 +46,6 @@ void ret_limit_handler() {
     encoderPosition = 0;
     calibrateStatus = 1;
     extending = 0;
-    
-    // extending = 1;
-    // delay(1000);
-    // pwm_start(SCISSOR_MOTOR_UP, 75, 4000, RESOLUTION_12B_COMPARE_FORMAT);
 }
 
 void encoder_handler() {
@@ -153,27 +148,6 @@ void dismountDrivingRoutine(){
     while (calibrateStatus == 0){
       delay(200);
     }
-}
-
-void incrementLap(){
-    if(millis()-tLastUp > INTERRUPT_COOLDOWN_MS){
-    tLastUp = millis();
-    rampState++;
-    Serial3.println(rampState);
-    if(rampState == 1){
-        Serial3.println("INCREMENTED LAP");
-        lapCount++;
-    }
-    Serial3.println("GOING UP");
-    }
-}
-
-void downRamp(){
-    if(millis()-tLastDown > INTERRUPT_COOLDOWN_MS){
-    tLastDown = millis();
-    rampState--;
-    Serial3.println("GOING DOWN");
-}
 }
 
 
