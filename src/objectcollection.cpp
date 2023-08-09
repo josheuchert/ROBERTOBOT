@@ -8,7 +8,19 @@
 volatile int elastiClicks = 0;
 volatile int prevElastiClicks = 0;
 bool stallState = 0;
+#define ELASTIPWM 3000//Powered at 12V so keep under ~3000
+#define ELASTIPWM 2000//Powered at 12V so keep under ~3000
+#define REVERSEPWM 500
 
+volatile int elastiClicks = 0;
+volatile int prevElastiClicks = 0;
+bool stallState = 0;
+
+int elastiSpeed = 0;
+int prevTime = 0;
+int elastiClicks = 0;
+int prevElastiClicks = 0;
+bool stallState = 0;
 
 
 void objCollectionInit(){
@@ -42,26 +54,19 @@ void elastiEncoder(){
     elastiClicks++;
 }
 
-void checkStall(){
-
-    Serial3.println("Check Stall:");
-    Serial3.println(elastiClicks);
-    Serial3.println(prevElastiClicks);
-    Serial3.println(stallState);
-
+void checkStall(){  
     if (stallState == 1) {
-        //normalObjRoutine();
+        normalObjRoutine();
         stallState = 0;
     }
     else {
-        if (elastiClicks - prevElastiClicks <= 1) {
+        if (elastiClicks - prevElastiClicks <= 5) {
             //Stall Detected
             pwm_start(ELASTIFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-            pwm_start(ELASTIREVERSE, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+            pwm_start(ELASTIREVERSE, 75, ELASTIFORWARD, RESOLUTION_12B_COMPARE_FORMAT);
             stallState = 1;
         }
     } 
-    prevElastiClicks = elastiClicks;
 }
 
 

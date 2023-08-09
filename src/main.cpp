@@ -49,8 +49,7 @@ void setup()
   Serial3.begin(9600); // BLUEPILL TX: B10, RX:B11
 
   drivePinInit();
-  //objCollectionInit();
-  pinMode(LED_BUILTIN, OUTPUT);
+  objCollectionInit();
   initSL(); //scissorlift init
   
   currentStateMachine = CALIBRATE_STATE;
@@ -103,7 +102,7 @@ void loop()
       {
         currentState = previousState;
       }
-    }
+       }
     int steeringVal = getSteeringVal(currentState, movingAverage.get());
     startDriveMotors(steeringVal);
     previousState = currentState;
@@ -112,11 +111,11 @@ void loop()
       upTransitionCounter++;
       for (int i = 0; i < sizeof(ZIPLINE_LAPS); i++)
       {
-        if (ZIPLINE_LAPS[i] == (upTransitionCounter + 1) / 2)
-          ;
+        if (ZIPLINE_LAPS[i] == (upTransitionCounter + 1) / 2);
         currentStateMachine = MOUNT_SL;
         upTransitionCounter++;
       }
+      //if at bottom of ramp change state to Mount SL
     }
   }
   // if at bottom of ramp change state to Mount SL
