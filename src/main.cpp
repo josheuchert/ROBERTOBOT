@@ -15,6 +15,8 @@
 #define TAPE_FOLLOW_STATE 2
 #define MOUNT_SL 5
 #define ON_ZIPLINE 6
+#define BETWEEN_LAPS_ZIPLINE_TIMER_MS 1000
+#define IGNORE_GYRO_OFF_START_MS 1000
 
 // Other definitions
 #define GO_SWITCH PB12
@@ -36,6 +38,8 @@ bool bombDetected = false;
 bool atTopOfRamp = false;
 int upTransitionCounter;
 long lastMarker = millis();
+long tStart = 0;
+long tLastUp = 0;
 
 long distanceCM;
 int currentStateMachine;
@@ -84,6 +88,7 @@ void loop() {
       {
         delay(50);
       }
+      tStart = millis();
       currentStateMachine = TAPE_FOLLOW_STATE;
       Serial3.println("ENTER TAPE FOLLOW STATE");
       normalObjRoutine();
@@ -107,16 +112,18 @@ void loop() {
       previousState = currentState;
       
       // Check if changed height
-      if (digitalRead(UP_RAMP) == HIGH) {
+      if(millis() - tStart > IGNORE_GYRO_OFF_START_MS && millis() - tLastUp > BETWEEN_LAPS_ZIPLINE_TIMER_MS) {
+        if (digitalRead(UP_RAMP) == HIGH) {
         upTransitionCounter++;
         // IAN HOW DO WE KNOW THAT THIS WONT TRIGGER MULTIPLE TIMES -> should have a time delay for approx time until next one
         for (int i = 0; i < sizeof(ZIPLINE_LAPS); i++) {
-          if (ZIPLINE_LAPS[i] == (upTransitionCounter + 1) / 2) {
+          if (ZIPLINE_LAPS[i] == upTransitionCounter) {
             currentStateMachine = MOUNT_SL;
-            upTransitionCounter++;
           }
         }
       }
+      }
+      
     }
     break;
         

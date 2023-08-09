@@ -14,7 +14,7 @@
 #define MOUNTPOSITION 3000
 #define DRIVE_PWM_FOR_MOUNTING 2000
 #define SONAR_CLIFF_HEIGHT 12
-#define SONAR_GROUND 4
+#define SONAR_GROUND 3
 #define DOWN_RAMP PB13
 #define UP_RAMP PB15
 #define INTERRUPT_COOLDOWN_MS 500
@@ -63,7 +63,7 @@ void stopScissor();
 void mountingDrivingRoutine();
 
 //Driving off the zipline and retracting SL
-void dismountDrivingRoutine();
+void dismountRoutine();
 
 //increments the lap counter if going up the ramp, gets ready for zipline state
 void incrementLap();

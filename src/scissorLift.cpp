@@ -10,8 +10,6 @@ bool extending;
 volatile bool calibrateStatus;
 int lapCount = 0;
 volatile int rampState = 0;
-int tLastUp = 0;
-int tLastDown = 0;
 
 
 void initSL() {
@@ -100,7 +98,7 @@ void calibrateSL() {
         Serial3.println("Detected High Bottom switch");
         int startTime = millis();
         extend();
-        delay(1200);
+        delay(1000);
         calibrateStatus = 0;
         retract();
     }
@@ -137,7 +135,7 @@ void mountingDrivingRoutine(){
 void dismountRoutine(){
     Serial3.println("Performing Dismount  Routine");
     
-    delay(500);
+    delay(700);
     stopScissor();
     delay(200);
     pwm_start(RMOTORFORWARD, 75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
