@@ -44,7 +44,15 @@ void elastiEncoder(){
     elastiClicks++;
 }
 
-void checkStall(){  
+
+void checkStall(){
+
+    Serial3.println("Check Stall:");
+    Serial3.println(elastiClicks);
+    Serial3.println(prevElastiClicks);
+    Serial3.println(elastiClicks);
+    Serial3.println(stallState);
+    
     if (stallState == 1) {
         normalObjRoutine();
         stallState = 0;
@@ -56,7 +64,9 @@ void checkStall(){
             pwm_start(ELASTIREVERSE, 75, ELASTIFORWARD, RESOLUTION_12B_COMPARE_FORMAT);
             stallState = 1;
         }
-    } 
+    }
+    prevElastiClicks = elastiClicks;
+
 }
 
 

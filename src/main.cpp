@@ -83,13 +83,12 @@ void loop()
     {
       delay(1);
     }
-    // if go switch is flipped
     currentStateMachine = TAPE_FOLLOW_STATE;
     Serial3.println("ENTER TAPE FOLLOW STATE");
     normalObjRoutine();
   }
   break;
-
+      
   case TAPE_FOLLOW_STATE:
   {
     // ---- DRIVING -----
@@ -120,76 +119,63 @@ void loop()
   }
   // if at bottom of ramp change state to Mount SL
   break;
-
-  case MOUNT_SL:
-  {
-    // Serial3.println("ENTERED MOUNTING");
-    // int prevRampState = rampState;
-    if (!topOfRamp)
-    {
-      if (!((analogRead(LEFTSENSE) > TAPE_THRESHOLD && analogRead(MIDLEFTSENSE) > TAPE_THRESHOLD && analogRead(MIDRIGHTSENSE) > TAPE_THRESHOLD && analogRead(RIGHTSENSE) > TAPE_THRESHOLD)))
-      {
-        movingAverage.update(previousState);
-        int currentState = getErrorState(previousState);
-        int steeringVal = getSteeringVal(currentState, movingAverage.get());
-        startDriveMotors(steeringVal);
-        previousState = currentState;
-      }
-      else
-      {
-        topOfRamp = true;
-      }
-    }
-    else
-    {
-      stopDriveMotors();
-      stopElasti();
-    }
-
-    if (extending == 0 && encoderPosition <= MOUNTPOSITION)
-    {
-      extend();
-    }
-    else if (encoderPosition >= MOUNTPOSITION)
-    {
-      stopScissor();
-
-      // move down to if at tape marker --> exclude check if extending to test before that
-      if (topOfRamp == true)
-      {
-        mountingDrivingRoutine();
-        distanceCM = getDistanceFromFloor();
-        Serial3.println(distanceCM);
-        if (distanceCM >= SONAR_CLIFF_HEIGHT)
-        {
-          extend();
-          Serial3.println("Setting to on zipline state");
-          currentStateMachine = ON_ZIPLINE;
-          topOfRamp = false;
-          pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-          pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-          delay(500);
-          stopScissor();
+      
+  case MOUNT_SL: {
+      if(!topOfRamp) {
+        if(!((analogRead(LEFTSENSE) > 500 && analogRead(MIDLEFTSENSE) > 500 && analogRead(MIDRIGHTSENSE) > 500 && analogRead(RIGHTSENSE) > 500))){
+          movingAverage.update(previousState);
+          int currentState = getErrorState(previousState);
+          int steeringVal = getSteeringVal(currentState, movingAverage.get());
+          startDriveMotors(steeringVal);
+          previousState = currentState;
+        } 
+        else {
+          topOfRamp = true;
+          mountingDrivingRoutine();
+          stopElasti();
         }
       }
-    }
-  }
-  break;
 
-  case ON_ZIPLINE:
-  {
-    distanceCM = getDistanceFromFloor();
-    if (distanceCM <= SONAR_GROUND)
-    {
-      delay(2000);
-      stopScissor();
-      dismountDrivingRoutine();
-      Serial3.println("Entering Tape Follow State (DONE)!");
+      if(extending == 0 && encoderPosition <= MOUNTPOSITION) {
+        extend();
+      }
+      else if(encoderPosition >= MOUNTPOSITION) {
+        stopScissor();
+        //Serial3.println("In Mount Position!");
+        //delay(1000);
 
-      currentStateMachine = TAPE_FOLLOW_STATE;
+        //move down to if at tape marker --> exclude check if extending to test before that
+        if(topOfRamp == true){
+          distanceCM = getDistanceFromFloor();
+          Serial3.println(distanceCM);
+          if (distanceCM >= SONAR_CLIFF_HEIGHT) {
+            Serial3.println("over the cliff");
+            Serial3.println(distanceCM);
+            extend();
+            Serial3.println("Setting to on zipline state");
+            currentStateMachine = ON_ZIPLINE;
+            topOfRamp = false;
+            pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+            pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+          }
+        }
+      }
+    }  
+    break;
+    
+    case ON_ZIPLINE:{
+      distanceCM = getDistanceFromFloor();
+      if (distanceCM <= SONAR_GROUND) {
+        delay(200);
+        stopScissor();
+        dismountDrivingRoutine();
+        Serial3.println("Entering Tape Follow State (DONE)!");
+        previousState = 0;
+        currentStateMachine = TAPE_FOLLOW_STATE;
+      }
+      
     }
-  }
-  break;
+    break;
   }
 }
 
