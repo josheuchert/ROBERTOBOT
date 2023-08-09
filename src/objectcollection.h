@@ -4,7 +4,7 @@
 #define PIPIN PB5 //not sure if this is worth having as a header file or not (interupts with headers?)
 #define ELASTIFORWARD PA_0
 #define ELASTIREVERSE PA_1
-#define ELASTIENCODER PC15
+#define ELASTIENCODER PA3
 
 #define BOMB_ROUTINE_MS 3000
 

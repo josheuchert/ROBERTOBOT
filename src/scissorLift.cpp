@@ -24,15 +24,11 @@ void initSL() {
     pinMode(UP_RAMP, INPUT_PULLDOWN);
     pinMode(DOWN_RAMP, INPUT_PULLDOWN);
 
-    attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_EXT), ext_limit_handler, RISING);
-    attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_RET), ret_limit_handler, RISING);
-    attachInterrupt(digitalPinToInterrupt(SL_ENCODER), encoder_handler, RISING);
-   // attachInterrupt(digitalPinToInterrupt(GO_PIN), go_handler, RISING);
-    attachInterrupt(digitalPinToInterrupt(UP_RAMP), incrementLap, RISING);
-    attachInterrupt(digitalPinToInterrupt(DOWN_RAMP), downRamp, RISING);
+   
     go = false;
     lapCount = 0;
     rampState = 0;
+    //attachInterrupt(digitalPinToInterrupt(UP_RAMP), incrementLap, RISING);
 
 }
 

@@ -57,6 +57,13 @@ void setup() {
   //normalObjRoutine();
   //pwm_start(ELASTIFORWARD,75,3000, RESOLUTION_12B_COMPARE_FORMAT);
   currentStateMachine = CALIBRATE_STATE;
+  attachInterrupt(digitalPinToInterrupt(ELASTIENCODER), elastiEncoder, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_EXT), ext_limit_handler, RISING);
+  attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_RET), ret_limit_handler, RISING);
+  attachInterrupt(digitalPinToInterrupt(SL_ENCODER), encoder_handler, RISING);
+  // attachInterrupt(digitalPinToInterrupt(GO_PIN), go_handler, RISING);
+  
+    //attachInterrupt(digitalPinToInterrupt(DOWN_RAMP), downRamp, RISING);
   // pwm_start(ELASTIFORWARD,75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
   prev_time = millis() + 2000;
 }
@@ -86,7 +93,7 @@ void loop() {
       calibrateSL();
       Serial3.println("Done Calibrating!");
       
-      currentStateMachine = POLL_GO_STATE;
+      currentStateMachine = TAPE_FOLLOW_STATE;
       Serial3.println("ENTER MOUNT SL STATE");
       delay(1000);}
       rampState = 0;
@@ -114,46 +121,44 @@ void loop() {
       }
       }
       int steeringVal = getSteeringVal(currentState, movingAverage.get());
-      startDriveMotors(steeringVal);
+      //startDriveMotors(steeringVal);
       // if(millis() - prev_time > 500) {
       //   checkStall();
       //   prev_time = millis();
       // }
       previousState = currentState;
-      if(rampState == 1 & lastRampState == 0){
-        lastRampState++;
-        for(int i = 0; i<sizeof(ZIPLINE_LAPS); i++){
-              if(ZIPLINE_LAPS[i]==lapCount){
-                currentStateMachine = MOUNT_SL;
-              }
-            }
-      }
+    if(digitalRead(UP_RAMP) == HIGH){
+        currentStateMachine = MOUNT_SL;
+    }
+            
+    }
       //if at bottom of ramp change state to Mount SL
     break;
-    }
+    
       
     
     case MOUNT_SL: {
       //Serial3.println("ENTERED MOUNTING");
-      int prevRampState = rampState;
-      if(rampState == 1 &&!topOfRamp) {
+      //int prevRampState = rampState;
+      if(!topOfRamp) {
         if(!((analogRead(LEFTSENSE) > 500 && analogRead(MIDLEFTSENSE) > 500 && analogRead(MIDRIGHTSENSE) > 500 && analogRead(RIGHTSENSE) > 500))){
-        movingAverage.update(previousState);
-      int currentState = getErrorState(previousState);
-      int steeringVal = getSteeringVal(currentState, movingAverage.get());
-      startDriveMotors(steeringVal);
-      previousState = currentState;
-        } else{
+          movingAverage.update(previousState);
+          int currentState = getErrorState(previousState);
+          int steeringVal = getSteeringVal(currentState, movingAverage.get());
+          //startDriveMotors(steeringVal);
+          previousState = currentState;
+        } 
+        else {
           topOfRamp = true;
         }
       
         //int newRampState = getGryoFromSerial(); //might want to make it check this less than every loop, could be slow
       //rampState += newRampState;
-      } else if (rampState == 0 && prevRampState ==1 || topOfRamp == true){
-        prevRampState = 0;
+      } else {
         //stopDriveMotors();
         stopElasti();
       }
+
       if(extending == 0 && encoderPosition <= MOUNTPOSITION) {
         extend();
       }
@@ -164,22 +169,24 @@ void loop() {
         //delay(1000);
 
         //move down to if at tape marker --> exclude check if extending to test before that
-        if(rampState == 0 || topOfRamp == true){
-         // mountingDrivingRoutine();
+        if(topOfRamp == true){
+          mountingDrivingRoutine();
+          distanceCM = getDistanceFromFloor();
+          Serial3.println(distanceCM);
+          if (distanceCM >= SONAR_CLIFF_HEIGHT) {
+            extend();
+            Serial3.println("Setting to on zipline state");
+            currentStateMachine = ON_ZIPLINE;
+            topOfRamp = false;
+            pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+            pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+            delay(500);
+            stopScissor();
+          }
         }
        
         //ignore
-        distanceCM = getDistanceFromFloor();
-        if (distanceCM >= SONAR_CLIFF_HEIGHT){
-          extend();
-          Serial3.println("Setting to on zipline state");
-          currentStateMachine = ON_ZIPLINE;
-          topOfRamp = false;
-          pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-          pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-          delay(500);
-          stopScissor();
-        }
+        
         // if (distanceCM >= SONAR_CLIFF_HEIGHT) {
         //   extend();
         //   currentState = ON_ZIPLINE;

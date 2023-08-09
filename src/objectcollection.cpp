@@ -18,7 +18,7 @@ void objCollectionInit(){
 
     pinMode(PIPIN, INPUT_PULLDOWN);
     pinMode(ELASTIENCODER, INPUT);
-    attachInterrupt(digitalPinToInterrupt(ELASTIENCODER), elastiEncoder, FALLING);
+   
 
 }
 
@@ -40,7 +40,6 @@ void stopElasti(){
 
 void elastiEncoder(){
     elastiClicks++;
-    Serial3.println(elastiClicks);
 }
 
 void checkStall(){
