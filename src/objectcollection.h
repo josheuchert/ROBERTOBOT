@@ -10,6 +10,9 @@
 #define NORMAL_SPEED 2000
 
 volatile extern int elastiClicks;
+extern bool bombDetected;
+
+
 
 /*
 Initialize the raspberry pi pin as an interrupt*/
@@ -30,4 +33,6 @@ void elastiEncoder();
 /*checks for a stall*/
 void checkStall();
 
+/*Checks for Bomb*/
+void checkBomb();
 #endif

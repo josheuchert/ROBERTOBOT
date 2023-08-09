@@ -34,7 +34,6 @@ volatile int previousState = 0;
 int loopCount = 0;
 unsigned long tLastLPSCalc = millis();
 unsigned long tBombDetected = millis();
-bool bombDetected = false;
 bool atTopOfRamp = false;
 int upTransitionCounter;
 long lastMarker = millis();
@@ -43,6 +42,8 @@ long tLastUp = 0;
 
 long distanceCM;
 int currentStateMachine;
+
+unsigned long swerve_time;
 
 void loopRate();
 

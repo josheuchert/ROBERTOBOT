@@ -11,6 +11,7 @@ bool stallState = 0;
 
 int elastiSpeed = 0;
 int prevTime = 0;
+bool bombDetected = false;
 
 
 void objCollectionInit(){
@@ -67,6 +68,15 @@ void checkStall(){
     }
     prevElastiClicks = elastiClicks;
 
+}
+
+void checkBomb() {
+    if(digitalRead(PIPIN) == HIGH) {
+        bombDetected = true;
+    }
+    else {
+        bombDetected = false;
+    }
 }
 
 
