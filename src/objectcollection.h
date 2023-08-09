@@ -8,6 +8,7 @@
 
 #define BOMB_ROUTINE_MS 3000
 
+volatile extern int elastiClicks;
 
 /*
 Initialize the raspberry pi pin as an interrupt*/

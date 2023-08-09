@@ -115,21 +115,21 @@ void loop() {
       int currentState = previousState;
       movingAverage.update(previousState);
       if(millis()- lastMarker >= TAPE_MARKER_STATE_DELAY_MS){
-      currentState = getErrorState(previousState);
-      if(currentState == 50){
-        currentState == previousState;
-      }
+        currentState = getErrorState(previousState);
+        if(currentState == 50){
+          currentState == previousState;
+        }
       }
       int steeringVal = getSteeringVal(currentState, movingAverage.get());
-      //startDriveMotors(steeringVal);
+      startDriveMotors(steeringVal);
       // if(millis() - prev_time > 500) {
       //   checkStall();
       //   prev_time = millis();
       // }
       previousState = currentState;
-    if(digitalRead(UP_RAMP) == HIGH){
-        currentStateMachine = MOUNT_SL;
-    }
+      if(digitalRead(UP_RAMP) == HIGH) {
+          currentStateMachine = MOUNT_SL;
+      }
             
     }
       //if at bottom of ramp change state to Mount SL
@@ -145,43 +145,37 @@ void loop() {
           movingAverage.update(previousState);
           int currentState = getErrorState(previousState);
           int steeringVal = getSteeringVal(currentState, movingAverage.get());
-          //startDriveMotors(steeringVal);
+          startDriveMotors(steeringVal);
           previousState = currentState;
         } 
         else {
           topOfRamp = true;
+          mountingDrivingRoutine();
+          stopElasti();
         }
-      
-        //int newRampState = getGryoFromSerial(); //might want to make it check this less than every loop, could be slow
-      //rampState += newRampState;
-      } else {
-        //stopDriveMotors();
-        stopElasti();
       }
 
       if(extending == 0 && encoderPosition <= MOUNTPOSITION) {
         extend();
       }
       else if(encoderPosition >= MOUNTPOSITION) {
-        // maybe add an extending == 1 ^^
         stopScissor();
         //Serial3.println("In Mount Position!");
         //delay(1000);
 
         //move down to if at tape marker --> exclude check if extending to test before that
         if(topOfRamp == true){
-          mountingDrivingRoutine();
           distanceCM = getDistanceFromFloor();
           Serial3.println(distanceCM);
           if (distanceCM >= SONAR_CLIFF_HEIGHT) {
+            Serial3.println("over the cliff");
+            Serial3.println(distanceCM);
             extend();
             Serial3.println("Setting to on zipline state");
             currentStateMachine = ON_ZIPLINE;
             topOfRamp = false;
             pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
             pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-            delay(500);
-            stopScissor();
           }
         }
        
@@ -223,12 +217,12 @@ void loop() {
     case ON_ZIPLINE:{
       distanceCM = getDistanceFromFloor();
       if (distanceCM <= SONAR_GROUND) {
-        delay(2000);
+        delay(200);
         stopScissor();
         dismountDrivingRoutine();
         Serial3.println("Entering Tape Follow State (DONE)!");
-        
-       // currentStateMachine = TAPE_FOLLOW_STATE;
+        previousState = 0;
+        currentStateMachine = TAPE_FOLLOW_STATE;
       }
       
     }
