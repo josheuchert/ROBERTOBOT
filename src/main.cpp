@@ -34,21 +34,22 @@ volatile int previousState = 0;
 int loopCount = 0;
 unsigned long tLastLPSCalc = millis();
 unsigned long tBombDetected = millis();
+//bool bombDetected = false;
 bool atTopOfRamp = false;
 int upTransitionCounter;
 long lastMarker = millis();
 long tStart = 0;
 long tLastUp = 0;
+long bomb_time;
+bool bomb_routine = false;
 
 long distanceCM;
 int currentStateMachine;
 
-unsigned long swerve_time;
-
 void loopRate();
 
 //Strategy Information
-const int ZIPLINE_LAPS[3] = {1, 2, 3};
+const int ZIPLINE_LAPS[1] = {1};
 
 
 // Setup
@@ -64,13 +65,13 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_EXT), ext_limit_handler, RISING);
   attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_RET), ret_limit_handler, RISING);
   attachInterrupt(digitalPinToInterrupt(SL_ENCODER), encoder_handler, RISING);
-
+  normalObjRoutine();
   currentStateMachine = CALIBRATE_STATE;
 }
 
 void loop() {
-  long distance = getDistanceFromFloor();
-  Serial3.println(distance);
+  // long distance = getDistanceFromFloor();
+  // Serial3.println(distance);
 
   switch (currentStateMachine) {
 
@@ -117,19 +118,39 @@ void loop() {
       startDriveMotors(steeringVal);
       previousState = currentState;
       
+      // Bomb routine
+      checkBomb();
+      if (bomb_routine == false) {
+        if(bombDetected) {
+            bombRoutine();
+            bomb_time = millis();
+            bomb_routine = true;
+        }
+      }
+      else {
+        if(!bombDetected){
+          if(millis() - bomb_time > 1000) {
+              normalObjRoutine();
+              bomb_routine = false;
+            }
+        }
+        else {
+          bomb_time = millis();
+        }
+      }
+      
+      
       // Check if changed height
       if(millis() - tStart > IGNORE_GYRO_OFF_START_MS && millis() - tLastUp > BETWEEN_LAPS_ZIPLINE_TIMER_MS) {
         if (digitalRead(UP_RAMP) == HIGH) {
         upTransitionCounter++;
-        // IAN HOW DO WE KNOW THAT THIS WONT TRIGGER MULTIPLE TIMES -> should have a time delay for approx time until next one
-        for (int i = 0; i < sizeof(ZIPLINE_LAPS); i++) {
-          if (ZIPLINE_LAPS[i] == upTransitionCounter) {
-            currentStateMachine = MOUNT_SL;
+          for (int i = 0; i < sizeof(ZIPLINE_LAPS); i++) {
+            if (ZIPLINE_LAPS[i] == upTransitionCounter) {
+              currentStateMachine = MOUNT_SL;
+            }
           }
         }
       }
-      }
-      
     }
     break;
         

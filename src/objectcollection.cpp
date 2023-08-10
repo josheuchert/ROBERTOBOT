@@ -3,7 +3,7 @@
 #include <objectcollection.h>
 
 #define ELASTIPWM 2000//Powered at 12V so keep under ~3000
-#define REVERSEPWM 500
+#define REVERSEPWM 0
 
 volatile int elastiClicks = 0;
 volatile int prevElastiClicks = 0;
@@ -26,7 +26,7 @@ void objCollectionInit(){
 }
 
 void bombRoutine(){ //should be in bomb routine while bomb is being detected
-
+    Serial3.println("Bomb Routine!");
     pwm_start(ELASTIFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(ELASTIREVERSE, 75, REVERSEPWM, RESOLUTION_12B_COMPARE_FORMAT);
 }
@@ -71,6 +71,7 @@ void checkStall(){
 }
 
 void checkBomb() {
+
     if(digitalRead(PIPIN) == HIGH) {
         bombDetected = true;
     }
