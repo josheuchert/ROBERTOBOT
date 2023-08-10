@@ -197,10 +197,12 @@ void loop() {
             if (distanceCM >= SONAR_CLIFF_HEIGHT) {
               // Serial3.println("Over the cliff");
               // Serial3.println(distanceCM);
-              stopDriveMotors();
+              pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+              pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+              //stopDriveMotors();
               delay(500);
               extend();
-              delay(1300);
+              delay(800);
               stopScissor();
               //Serial3.println("Setting to on zipline state");
               currentStateMachine = ON_ZIPLINE;
