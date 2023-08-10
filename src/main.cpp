@@ -16,7 +16,7 @@
 #define MOUNT_SL 5
 #define ON_ZIPLINE 6
 #define BETWEEN_LAPS_ZIPLINE_TIMER_MS 1000
-#define IGNORE_GYRO_OFF_START_MS 1000
+#define IGNORE_GYRO_OFF_START_MS 7000
 
 // Other definitions
 #define GO_SWITCH PB14
@@ -245,17 +245,18 @@ void loop() {
         if (distanceCM <= SONAR_GROUND) {
           dismountRoutine();
           //Serial3.println("Entering Tape Follow State (DONE)!");
-          previousState = -2;
+          previousState = 0;
           currentStateMachine = TAPE_FOLLOW_STATE;
+          break;
         }
 
         if (millis() - zipline_time > 7000) {
           dismountRoutine();
-          previousState = -2;
+          previousState = 0;
           currentStateMachine = TAPE_FOLLOW_STATE;
+          break;
         }
       }
-      break;
     }
 }
 
