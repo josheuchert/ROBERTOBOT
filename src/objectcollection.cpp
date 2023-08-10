@@ -48,11 +48,11 @@ void elastiEncoder(){
 
 void checkStall(){
 
-    Serial3.println("Check Stall:");
-    Serial3.println(elastiClicks);
-    Serial3.println(prevElastiClicks);
-    Serial3.println(elastiClicks);
-    Serial3.println(stallState);
+    // Serial3.println("Check Stall:");
+    // Serial3.println(elastiClicks);
+    // Serial3.println(prevElastiClicks);
+    // Serial3.println(elastiClicks);
+    // Serial3.println(stallState);
     
     if (stallState == 1) {
         normalObjRoutine();

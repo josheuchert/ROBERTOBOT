@@ -46,6 +46,8 @@ bool bomb_routine = false;
 long distanceCM;
 int currentStateMachine;
 
+long prev_checkStall = 0;
+
 void loopRate();
 
 //Strategy Information
@@ -138,6 +140,13 @@ void loop() {
           bomb_time = millis();
         }
       }
+
+      //Check Stall Code
+      if (millis() - prev_checkStall>= 500 && bomb_routine == false ){
+        checkStall();
+        prev_checkStall = millis();
+      }
+      
       
       
       // Check if changed height
