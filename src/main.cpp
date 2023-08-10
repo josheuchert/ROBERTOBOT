@@ -22,6 +22,7 @@
 
 // Other definitions
 #define GO_SWITCH PB14
+#define RESET PB13
 
 #define AVERAGE_OVER 1000
 #define TAPE_MARKER_STATE_DELAY_MS 50
@@ -30,6 +31,7 @@
 // Variable Declaration
 HardwareSerial Serial3(USART3);
 MovingAverage movingAverage(0.02); //exponential moving average using approx 100 terms
+//MovingAverage movingAverageSonar(20);
 
 volatile int previousState = 0;
 
@@ -44,6 +46,7 @@ long tStart = 0;
 long tLastUp = 0;
 long bomb_time;
 bool bomb_routine = false;
+long zipline_time;
 
 long distanceCM;
 int currentStateMachine;
@@ -65,6 +68,10 @@ void setup() {
   objCollectionInit();
   initSL();
   
+  pinMode(GO_SWITCH, INPUT_PULLUP);
+  pinMode(RESET, INPUT_PULLUP);
+
+
   attachInterrupt(digitalPinToInterrupt(ELASTIENCODER), elastiEncoder, RISING);
   attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_EXT), ext_limit_handler, RISING);
   attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_RET), ret_limit_handler, RISING);
@@ -186,13 +193,19 @@ void loop() {
           
           if(topOfRamp == true) {
             distanceCM = getDistanceFromFloor();
-            Serial3.println(distanceCM); 
+            // Serial3.println(distanceCM); 
             if (distanceCM >= SONAR_CLIFF_HEIGHT) {
-              Serial3.println("Over the cliff");
-              Serial3.println(distanceCM);
+              // Serial3.println("Over the cliff");
+              // Serial3.println(distanceCM);
+              stopDriveMotors();
+              delay(500);
               extend();
-              Serial3.println("Setting to on zipline state");
+              delay(1300);
+              stopScissor();
+              //Serial3.println("Setting to on zipline state");
               currentStateMachine = ON_ZIPLINE;
+              zipline_time = millis();
+              
               topOfRamp = false;
               pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
               pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
@@ -203,6 +216,7 @@ void loop() {
       break;
       
       case ON_ZIPLINE: {
+        
         distanceCM = getDistanceFromFloor();
         if (distanceCM <= SONAR_GROUND) {
           dismountRoutine();
@@ -210,20 +224,48 @@ void loop() {
           //previousState = -3;
           currentStateMachine = FIND_TAPE;
         }
+
+        if (millis() - zipline_time > 6000) {
+          dismountRoutine();
+          currentStateMachine = FIND_TAPE;
+        }
       }
       break;
 
       case FIND_TAPE: {
-        pwm_start(RMOTORFORWARD, 75, 1500, RESOLUTION_12B_COMPARE_FORMAT);
-        pwm_start(LMOTORFORWARD, 75, 1500, RESOLUTION_12B_COMPARE_FORMAT);
+        distanceCM = getDistanceFromFloor();
+        if (distanceCM > 10) {
+          stopScissor();
+          extend();
+          delay(500);
+          stopScissor();
+          dismountRoutine();
+          
+        }
+
+        pwm_start(RMOTORFORWARD, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
+        pwm_start(LMOTORFORWARD, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
+
         int currentStateLeft = analogRead(LEFTSENSE);
         int currentStateMidLeft = analogRead(MIDLEFTSENSE);
         int currentStateMidRight = analogRead(MIDRIGHTSENSE);
         int currentStateRight = analogRead(RIGHTSENSE);
         int leftMarkerReading = analogRead(LMARKERSENSE);
         int rightMarkerReading = analogRead(RMARKERSENSE);
-        if () {
-          
+
+        if (currentStateMidRight > TAPE_THRESHOLD || currentStateMidLeft || TAPE_THRESHOLD || currentStateLeft > TAPE_THRESHOLD || currentStateRight > TAPE_THRESHOLD || leftMarkerReading > TAPE_THRESHOLD || rightMarkerReading > TAPE_THRESHOLD) {
+          while(digitalRead(LIMIT_SWITCH_RET) == LOW) {
+            delay(100);
+            pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+            pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+            pwm_start(RMOTORBACK, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
+            pwm_start(LMOTORBACK, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
+            delay(400);
+            pwm_start(RMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+            pwm_start(LMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+          }
+          previousState = 0;
+          currentStateMachine = TAPE_FOLLOW_STATE;
         }
       }
       break;

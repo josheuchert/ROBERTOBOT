@@ -129,28 +129,29 @@ void mountingDrivingRoutine(){
     pwm_start(RMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(RMOTORFORWARD, 75, 3000, RESOLUTION_12B_COMPARE_FORMAT);
-    pwm_start(LMOTORFORWARD, 75, 2300, RESOLUTION_12B_COMPARE_FORMAT);
+    pwm_start(LMOTORFORWARD, 75, 2350, RESOLUTION_12B_COMPARE_FORMAT);
 }
 
 void dismountRoutine(){
-    Serial3.println("Performing Dismount Routine");
+    //Serial3.println("Performing Dismount Routine");
     
-    delay(800);
+    delay(500);
     stopScissor();
+    delay(1200);
     pwm_start(RMOTORFORWARD, 75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORBACK, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
     delay(700);
     pwm_start(RMOTORFORWARD, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
-     pwm_start(LMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+    pwm_start(LMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORFORWARD, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
-    delay(300);
+    delay(500);
     calibrateStatus = 0;
     stopDriveMotors();
     retract();
-    while (calibrateStatus == 0){
-      delay(200);
-    }
+    // while (calibrateStatus == 0){
+    //   delay(200);
+    // }
 }
 
 
