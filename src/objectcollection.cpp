@@ -3,7 +3,7 @@
 #include <objectcollection.h>
 
 #define ELASTIPWM 2000//Powered at 12V so keep under ~3000
-#define REVERSEPWM 0
+#define REVERSEPWM 450
 
 volatile int elastiClicks = 0;
 volatile int prevElastiClicks = 0;
