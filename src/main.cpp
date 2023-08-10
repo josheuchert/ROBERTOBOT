@@ -15,6 +15,8 @@
 #define TAPE_FOLLOW_STATE 2
 #define MOUNT_SL 5
 #define ON_ZIPLINE 6
+#define FIND_TAPE 7
+
 #define BETWEEN_LAPS_ZIPLINE_TIMER_MS 1000
 #define IGNORE_GYRO_OFF_START_MS 1000
 
@@ -72,8 +74,6 @@ void setup() {
 }
 
 void loop() {
-  // long distance = getDistanceFromFloor();
-  // Serial3.println(distance);
 
   switch (currentStateMachine) {
 
@@ -142,11 +142,10 @@ void loop() {
       }
 
       //Check Stall Code
-      if (millis() - prev_checkStall>= 500 && bomb_routine == false ){
+      if (millis() - prev_checkStall >= 300 && bomb_routine == false ){
         checkStall();
         prev_checkStall = millis();
       }
-      
       
       
       // Check if changed height
@@ -207,9 +206,24 @@ void loop() {
         distanceCM = getDistanceFromFloor();
         if (distanceCM <= SONAR_GROUND) {
           dismountRoutine();
-          Serial3.println("Entering Tape Follow State (DONE)!");
-          previousState = 0;
-          currentStateMachine = TAPE_FOLLOW_STATE;
+          //Serial3.println("Entering Tape Follow State (DONE)!");
+          //previousState = -3;
+          currentStateMachine = FIND_TAPE;
+        }
+      }
+      break;
+
+      case FIND_TAPE: {
+        pwm_start(RMOTORFORWARD, 75, 1500, RESOLUTION_12B_COMPARE_FORMAT);
+        pwm_start(LMOTORFORWARD, 75, 1500, RESOLUTION_12B_COMPARE_FORMAT);
+        int currentStateLeft = analogRead(LEFTSENSE);
+        int currentStateMidLeft = analogRead(MIDLEFTSENSE);
+        int currentStateMidRight = analogRead(MIDRIGHTSENSE);
+        int currentStateRight = analogRead(RIGHTSENSE);
+        int leftMarkerReading = analogRead(LMARKERSENSE);
+        int rightMarkerReading = analogRead(RMARKERSENSE);
+        if () {
+          
         }
       }
       break;
