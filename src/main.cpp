@@ -72,8 +72,6 @@ void setup() {
 }
 
 void loop() {
-  // long distance = getDistanceFromFloor();
-  // Serial3.println(distance);
 
   switch (currentStateMachine) {
 
@@ -142,11 +140,10 @@ void loop() {
       }
 
       //Check Stall Code
-      if (millis() - prev_checkStall>= 500 && bomb_routine == false ){
+      if (millis() - prev_checkStall >= 300 && bomb_routine == false ){
         checkStall();
         prev_checkStall = millis();
       }
-      
       
       
       // Check if changed height
