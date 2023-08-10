@@ -22,7 +22,7 @@
 
 // Other definitions
 #define GO_SWITCH PB14
-#define RESET PB13
+#define RESET PB12
 
 #define AVERAGE_OVER 1000
 #define TAPE_MARKER_STATE_DELAY_MS 50
@@ -56,7 +56,7 @@ long prev_checkStall = 0;
 void loopRate();
 
 //Strategy Information
-const int ZIPLINE_LAPS[1] = {1};
+int ZIPLINE_LAPS[1] = {1};
 
 
 // Setup
@@ -70,7 +70,6 @@ void setup() {
   
   pinMode(GO_SWITCH, INPUT_PULLUP);
   pinMode(RESET, INPUT_PULLUP);
-
 
   attachInterrupt(digitalPinToInterrupt(ELASTIENCODER), elastiEncoder, RISING);
   attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_EXT), ext_limit_handler, RISING);
@@ -86,29 +85,41 @@ void loop() {
 
     case CALIBRATE_STATE:
     {
+      // if (digitalRead(RESET) == HIGH) {
+      //   currentStateMachine = POLL_GO_STATE;
+      //   for (int i = 0; i < sizeof(ZIPLINE_LAPS); i++) {
+      //       ZIPLINE_LAPS[i] = -1;
+      //     }
+      // }
+      // else {
       calibrateSL();
       Serial3.println("Done Calibrating!");
 
       currentStateMachine = POLL_GO_STATE;
       Serial3.println("POLL_GO_STATE");
       topOfRamp = false;
+      //}
     }
     break;
 
     case POLL_GO_STATE:
     {
-      while (digitalRead(GO_SWITCH) == HIGH)
-      {
-        delay(50);
-      }
-      delay(10);
       if (digitalRead(GO_SWITCH) == LOW) {
         tStart = millis();
         currentStateMachine = TAPE_FOLLOW_STATE;
-        Serial3.println("ENTER TAPE FOLLOW STATE");
+        //Serial3.println("ENTER TAPE FOLLOW STATE");
         normalObjRoutine();
       } 
-    }
+      else if (digitalRead(RESET) == LOW) {
+        tStart = millis();
+        currentStateMachine = TAPE_FOLLOW_STATE;
+        //Serial3.println("ENTER TAPE FOLLOW STATE");
+        normalObjRoutine();
+        for (int i = 0; i < sizeof(ZIPLINE_LAPS)/sizeof(ZIPLINE_LAPS[0]); i++) {
+          ZIPLINE_LAPS[i] = -1;
+        }
+      }
+     }
     break;
         
     case TAPE_FOLLOW_STATE:
@@ -126,6 +137,14 @@ void loop() {
       int steeringVal = getSteeringVal(currentState, movingAverage.get());
       startDriveMotors(steeringVal);
       previousState = currentState;
+      
+
+      //Check Stall Code
+      if (millis() - prev_checkStall >= 300 && bomb_routine == false ){
+        checkStall();
+        prev_checkStall = millis();
+      }
+
       
       // Bomb routine
       checkBomb();
@@ -148,18 +167,14 @@ void loop() {
         }
       }
 
-      //Check Stall Code
-      if (millis() - prev_checkStall >= 300 && bomb_routine == false ){
-        checkStall();
-        prev_checkStall = millis();
-      }
+      
       
       
       // Check if changed height
       if(millis() - tStart > IGNORE_GYRO_OFF_START_MS && millis() - tLastUp > BETWEEN_LAPS_ZIPLINE_TIMER_MS) {
         if (digitalRead(UP_RAMP) == HIGH) {
         upTransitionCounter++;
-          for (int i = 0; i < sizeof(ZIPLINE_LAPS); i++) {
+          for (int i = 0; i < sizeof(ZIPLINE_LAPS)/sizeof(ZIPLINE_LAPS[0]); i++) {
             if (ZIPLINE_LAPS[i] == upTransitionCounter) {
               currentStateMachine = MOUNT_SL;
             }
@@ -177,6 +192,33 @@ void loop() {
             int steeringVal = getSteeringVal(currentState, movingAverage.get());
             startDriveMotors(steeringVal);
             previousState = currentState;
+
+            // Bomb routine
+            checkBomb();
+            if (bomb_routine == false) {
+              if(bombDetected) {
+                  bombRoutine();
+                  bomb_time = millis();
+                  bomb_routine = true;
+              }
+            }
+            else {
+              if(!bombDetected){
+                if(millis() - bomb_time > 1000) {
+                    normalObjRoutine();
+                    bomb_routine = false;
+                  }
+              }
+              else {
+                bomb_time = millis();
+              }
+            }
+
+            //Check Stall Code
+            if (millis() - prev_checkStall >= 300 && bomb_routine == false ){
+              checkStall();
+              prev_checkStall = millis();
+            }
           } 
           else {
             topOfRamp = true;
@@ -255,18 +297,18 @@ void loop() {
         int leftMarkerReading = analogRead(LMARKERSENSE);
         int rightMarkerReading = analogRead(RMARKERSENSE);
 
-        if (currentStateMidRight > TAPE_THRESHOLD || currentStateMidLeft || TAPE_THRESHOLD || currentStateLeft > TAPE_THRESHOLD || currentStateRight > TAPE_THRESHOLD || leftMarkerReading > TAPE_THRESHOLD || rightMarkerReading > TAPE_THRESHOLD) {
+        if (currentStateMidRight > TAPE_THRESHOLD || currentStateMidLeft > TAPE_THRESHOLD || currentStateLeft > TAPE_THRESHOLD || currentStateRight > TAPE_THRESHOLD || leftMarkerReading > TAPE_THRESHOLD || rightMarkerReading > TAPE_THRESHOLD) {
+          pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+          pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+          pwm_start(RMOTORBACK, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
+          pwm_start(LMOTORBACK, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
+          delay(500);
+          pwm_start(RMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+          pwm_start(LMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
           while(digitalRead(LIMIT_SWITCH_RET) == LOW) {
             delay(100);
-            pwm_start(RMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-            pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-            pwm_start(RMOTORBACK, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
-            pwm_start(LMOTORBACK, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
-            delay(400);
-            pwm_start(RMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-            pwm_start(LMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
           }
-          previousState = 0;
+          previousState = -1;
           currentStateMachine = TAPE_FOLLOW_STATE;
         }
       }

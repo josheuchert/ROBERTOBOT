@@ -62,7 +62,7 @@ void checkStall(){
         if (elastiClicks - prevElastiClicks <= 5) {
             //Stall Detected
             pwm_start(ELASTIFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-            pwm_start(ELASTIREVERSE, 75, ELASTIFORWARD, RESOLUTION_12B_COMPARE_FORMAT);
+            pwm_start(ELASTIREVERSE, 75, 3000, RESOLUTION_12B_COMPARE_FORMAT);
             stallState = 1;
         }
     }

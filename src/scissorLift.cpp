@@ -135,13 +135,14 @@ void mountingDrivingRoutine(){
 void dismountRoutine(){
     //Serial3.println("Performing Dismount Routine");
     
-    delay(500);
+    extend();
+    delay(200);
     stopScissor();
     delay(1200);
     pwm_start(RMOTORFORWARD, 75, 2000, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORBACK, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
-    delay(700);
+    delay(500);
     pwm_start(RMOTORFORWARD, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORFORWARD, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
