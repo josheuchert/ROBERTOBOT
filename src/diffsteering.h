@@ -12,7 +12,7 @@
 #define RMOTORBACK PB_6
 #define LMARKERSENSE PA4
 #define RMARKERSENSE PA5
-#define TAPE_THRESHOLD 500
+#define TAPE_THRESHOLD 650
 
 extern bool topOfRamp;
 
