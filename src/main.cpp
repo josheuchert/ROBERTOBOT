@@ -50,6 +50,7 @@ int currentStateMachine;
 long prev_checkStall = 0;
 long zipline_time;
 
+
 void loopRate();
 
 //Strategy Information
@@ -77,7 +78,7 @@ void setup() {
 }
 
 void loop() {
-  
+
   switch (currentStateMachine) {
 
     case CALIBRATE_STATE:
@@ -155,6 +156,7 @@ void loop() {
           bomb_time = millis();
         }
       }      
+
       
       // Check if changed height
       if(millis() - tStart > IGNORE_GYRO_OFF_START_MS && millis() - tLastUp > BETWEEN_LAPS_ZIPLINE_TIMER_MS) {
