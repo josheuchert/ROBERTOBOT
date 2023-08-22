@@ -3,7 +3,7 @@
 #include <objectcollection.h>
 
 #define ELASTIPWM 2000//Powered at 12V so keep under ~3000
-#define REVERSEPWM 0
+#define REVERSEPWM 450
 
 volatile int elastiClicks = 0;
 volatile int prevElastiClicks = 0;
@@ -62,7 +62,7 @@ void checkStall(){
         if (elastiClicks - prevElastiClicks <= 5) {
             //Stall Detected
             pwm_start(ELASTIFORWARD, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
-            pwm_start(ELASTIREVERSE, 75, ELASTIFORWARD, RESOLUTION_12B_COMPARE_FORMAT);
+            pwm_start(ELASTIREVERSE, 75, 1500, RESOLUTION_12B_COMPARE_FORMAT);
             stallState = 1;
         }
     }
@@ -79,5 +79,3 @@ void checkBomb() {
         bombDetected = false;
     }
 }
-
-

@@ -129,7 +129,7 @@ void mountingDrivingRoutine(){
     pwm_start(RMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(RMOTORFORWARD, 75, 3000, RESOLUTION_12B_COMPARE_FORMAT);
-    pwm_start(LMOTORFORWARD, 75, 2300, RESOLUTION_12B_COMPARE_FORMAT);
+    pwm_start(LMOTORFORWARD, 75, 2350, RESOLUTION_12B_COMPARE_FORMAT);
 }
 
 void dismountRoutine(){
@@ -142,9 +142,9 @@ void dismountRoutine(){
     pwm_start(LMOTORBACK, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
     delay(700);
     pwm_start(RMOTORFORWARD, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
-     pwm_start(LMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
+    pwm_start(LMOTORBACK, 75, 0, RESOLUTION_12B_COMPARE_FORMAT);
     pwm_start(LMOTORFORWARD, 75, 1000, RESOLUTION_12B_COMPARE_FORMAT);
-    delay(300);
+    delay(150);
     calibrateStatus = 0;
     stopDriveMotors();
     retract();

@@ -3,8 +3,8 @@
 #include <diffsteering.h>
 
 
-#define PWM_PERCENTAGE 50 // Update this to change motor speed (0-100)
-#define STRAIGHTLINE_PWM_PERCENT 50
+#define PWM_PERCENTAGE 40 // Update this to change motor speed (0-100)
+#define STRAIGHTLINE_PWM_PERCENT 40
 #define PWM_MAX 4095
 #define PWM_DEADZONE 650 // PWM from 0-650 do not result in rotation of the motor
 const int DRIVE_MOTOR_DUTY_CYCLE(((PWM_MAX - PWM_DEADZONE) * PWM_PERCENTAGE / 100) + PWM_DEADZONE);
